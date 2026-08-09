@@ -289,6 +289,38 @@ button, input, textarea { font: inherit; color: inherit; }
 .measure-btns { display: flex; gap: 8px; }
 .measure-btns .btn { flex: 1; padding: 9px; }
 
+/* ───────────── biome helper ───────────── */
+.btn-help {
+  width: 100%; margin-bottom: 8px; text-align: left;
+  color: var(--accent); border-color: var(--accent); background: transparent;
+  font-size: 13px; padding: 10px 12px;
+}
+.question {
+  font-size: 18px; line-height: 1.35; margin: 6px 0 16px;
+  min-height: 50px;
+}
+.btn-no { background: var(--panel-2); border-color: var(--line); }
+
+/* ───────────── hover tooltip ───────────── */
+.hovertip {
+  position: fixed; z-index: 15; pointer-events: none;
+  background: var(--panel); border: 1px solid var(--line);
+  border-radius: 10px; padding: 9px 11px; max-width: 250px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.55);
+  font-size: 12px; line-height: 1.45;
+}
+.hovertip .tip-head {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px; color: var(--ink-dim); margin-bottom: 4px;
+}
+.hovertip .tip-biome { display: flex; align-items: center; gap: 7px; }
+.hovertip .tip-biome i {
+  width: 10px; height: 10px; border-radius: 2px; flex: 0 0 auto;
+  border: 1px solid rgba(255,255,255,.2);
+}
+.hovertip .tip-slime { color: #78c850; margin-top: 4px; }
+.hovertip .tip-note { color: var(--ink-dim); margin-top: 5px; font-style: italic; }
+
 /* ───────────── owner mode ───────────── */
 .owner-badge { width: 32px; height: 32px; font-size: 13px; border-color: var(--accent); flex: 0 0 auto; }
 .brand { cursor: pointer; -webkit-user-select: none; user-select: none; }

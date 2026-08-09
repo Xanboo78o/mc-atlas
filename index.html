@@ -152,6 +152,9 @@
 
   <div class="field">
     <span>Majority biome — pick as many as apply</span>
+    <button type="button" class="btn btn-help" id="cIdentify">
+      Not sure? Answer a few questions →
+    </button>
     <input id="cBiomeSearch" type="search" autocomplete="off" placeholder="search all biomes…">
     <div id="cBiomeList" class="biomelist"></div>
   </div>
@@ -213,6 +216,32 @@
   </div>
 </section>
 
+<!-- biome helper: narrows the list by asking about what you can see -->
+<section id="helper" class="sheet hidden">
+  <div class="grabber"></div>
+  <h2>Which biome is it?</h2>
+  <p class="muted" id="hCount">—</p>
+
+  <div id="hAsk">
+    <div class="question" id="hQuestion">—</div>
+    <div class="sheet-actions">
+      <button class="btn btn-go" id="hYes">Yes</button>
+      <button class="btn btn-no" id="hNo">No</button>
+      <button class="btn btn-ghost" id="hSkip">Not sure</button>
+    </div>
+  </div>
+
+  <div id="hNarrowed" class="hidden">
+    <p class="muted" id="hLead">Tap the one that matches.</p>
+    <div id="hResults" class="biomelist"></div>
+  </div>
+
+  <div class="sheet-actions">
+    <button class="btn btn-ghost" id="hRestart">Start over</button>
+    <button class="btn btn-ghost" id="hClose">Cancel</button>
+  </div>
+</section>
+
 <!-- passphrase -->
 <section id="keyPad" class="sheet hidden">
   <div class="grabber"></div>
@@ -240,6 +269,7 @@
   <div id="sResults" class="results"></div>
 </section>
 
+<div id="hoverTip" class="hovertip hidden"></div>
 <div id="toast" class="toast hidden"></div>
 
 <script type="module" src="app.js"></script>

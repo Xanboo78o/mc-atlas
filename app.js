@@ -1,7 +1,7 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import {
   SUPABASE_URL, SUPABASE_ANON_KEY, SERVER_NAME,
-  KINDS, DIMENSIONS, MAP_LAYERS, BIOMES, SLIME_COLOR,
+  KINDS, DIMENSIONS, MAP_LAYERS, BIOMES, SLIME_COLOR, BIOME_TAGS, QUESTIONS,
 } from './config.js'
 
 const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
@@ -483,7 +483,8 @@ function flyTo (x, z, scale) {
 
 /* ══════════════════════ sheets ══════════════════════ */
 
-const SHEETS = ['detail', 'editor', 'bEditor', 'cEditor', 'keyPad', 'searchPane']
+// Every sheet must be listed here — openSheet only reveals ids it knows about.
+const SHEETS = ['detail', 'editor', 'bEditor', 'cEditor', 'helper', 'keyPad', 'searchPane']
 
 function openSheet (id) {
   SHEETS.forEach(s => $(s).classList.toggle('hidden', s !== id))
@@ -988,6 +989,140 @@ $('cDelete').onclick = async () => {
   closeSheets()
   toast('Chunk cleared')
 }
+
+/* ══════════════════════ the biome helper ══════════════════════
+
+   Twenty questions for biomes. It holds a set of candidates and, each turn,
+   asks whichever question splits that set closest to in half — so the answer
+   you give is worth the most it possibly can be. Roughly seven questions gets
+   you from ninety-odd biomes down to one.                                     */
+
+const tagsOf = key => BIOME_TAGS[key] || []
+
+const helper = { candidates: [], asked: new Set() }
+
+function openHelper () {
+  // A chunk's dimension already rules most of the list out, so start there
+  // rather than asking "are you in the Nether?" about an overworld chunk.
+  const dim = store.editingChunk?.dimension || store.dimension
+  const groups = dim === 'nether' ? ['Nether']
+               : dim === 'end'    ? ['The End']
+               : ['Overworld', 'Legacy']
+
+  helper.candidates = BIOMES.filter(b => groups.includes(b.group))
+  helper.asked = new Set()
+  openSheet('helper')
+  stepHelper()
+}
+
+/* The question whose yes/no split is closest to even. */
+function nextQuestion () {
+  const n = helper.candidates.length
+  let best = null, bestGap = Infinity
+
+  for (const q of QUESTIONS) {
+    if (helper.asked.has(q.tag)) continue
+    const yes = helper.candidates.filter(b => tagsOf(b.key).includes(q.tag)).length
+    if (yes === 0 || yes === n) continue        // tells us nothing
+    const gap = Math.abs(yes - n / 2)
+    if (gap < bestGap) { bestGap = gap; best = q }
+  }
+  return best
+}
+
+function stepHelper () {
+  const n = helper.candidates.length
+  const q = n > 1 ? nextQuestion() : null
+
+  $('hCount').textContent = n === 1
+    ? 'Just one left.'
+    : `${n} biome${n === 1 ? '' : 's'} still possible`
+
+  // Out of useful questions, or narrow enough to just eyeball it.
+  if (!q || n <= 8) {
+    $('hAsk').classList.add('hidden')
+    $('hNarrowed').classList.remove('hidden')
+    $('hLead').textContent = n
+      ? (n === 1 ? 'That should be it.' : 'Tap the one that matches.')
+      : "Nothing matches all that — start over, or use the search box instead."
+    $('hResults').innerHTML = helper.candidates.map(b =>
+      `<button type="button" data-b="${b.key}">
+         <span class="swatch" style="background:${b.color}"></span>${b.label}
+       </button>`).join('')
+    return
+  }
+
+  $('hAsk').classList.remove('hidden')
+  $('hNarrowed').classList.add('hidden')
+  $('hQuestion').textContent = q.text
+  $('hQuestion').dataset.tag = q.tag
+}
+
+function answerHelper (yes) {
+  const tag = $('hQuestion').dataset.tag
+  if (!tag) return
+  helper.asked.add(tag)
+  if (yes !== null) {
+    helper.candidates = helper.candidates.filter(b => tagsOf(b.key).includes(tag) === yes)
+  }
+  stepHelper()
+}
+
+$('hYes').onclick = () => answerHelper(true)
+$('hNo').onclick = () => answerHelper(false)
+$('hSkip').onclick = () => answerHelper(null)
+$('hRestart').onclick = openHelper
+$('hClose').onclick = () => openSheet('cEditor')
+$('cIdentify').onclick = openHelper
+
+$('hResults').onclick = e => {
+  const b = e.target.closest('button'); if (!b) return
+  chunkBiomes.add(b.dataset.b)
+  openSheet('cEditor')
+  $('cBiomeSearch').value = ''
+  renderBiomes()
+  toast(`Added ${biomeOf(b.dataset.b)?.label || b.dataset.b}`)
+}
+
+/* ══════════════════════ hover details ══════════════════════ */
+
+const tip = $('hoverTip')
+
+cv.addEventListener('pointermove', e => {
+  if (e.pointerType !== 'mouse' || pointers.size) return hideTip()
+
+  const r = cv.getBoundingClientRect()
+  const { x, z } = toWorld(e.clientX - r.left, e.clientY - r.top)
+  const cx = Math.floor(x / CHUNK), cz = Math.floor(z / CHUNK)
+  const c = store.chunks.find(k =>
+    k.cx === cx && k.cz === cz && k.dimension === store.dimension)
+
+  // Untagged chunks are only worth a tooltip while you're actively tagging.
+  if (!c && store.mode !== 'chunk') return hideTip()
+
+  const biomes = (c?.biomes || []).map(k => {
+    const b = biomeOf(k)
+    return b
+      ? `<div class="tip-biome"><i style="background:${b.color}"></i>${escapeHtml(b.label)}</div>`
+      : ''
+  }).join('')
+
+  tip.innerHTML =
+    `<div class="tip-head">chunk ${cx}, ${cz} · blocks ${cx * CHUNK} ${cz * CHUNK}</div>` +
+    (biomes || '<div class="muted">Not tagged yet</div>') +
+    (c?.slime ? '<div class="tip-slime">◆ Slime chunk</div>' : '') +
+    (c?.note ? `<div class="tip-note">${escapeHtml(c.note)}</div>` : '')
+
+  tip.classList.remove('hidden')
+  // keep it on screen near the right and bottom edges
+  const tw = tip.offsetWidth, th = tip.offsetHeight
+  tip.style.left = Math.min(e.clientX + 14, window.innerWidth - tw - 8) + 'px'
+  tip.style.top = Math.min(e.clientY + 16, window.innerHeight - th - 8) + 'px'
+})
+
+const hideTip = () => tip.classList.add('hidden')
+cv.addEventListener('pointerleave', hideTip)
+cv.addEventListener('pointerdown', hideTip)
 
 /* ══════════════════════ owner mode ══════════════════════
 

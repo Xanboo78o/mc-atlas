@@ -69,6 +69,28 @@ Tap `▦` and then tap any chunk to tag it. You can mark:
   facts stay independently readable. If you're hunting a slime farm site this is
   the whole point.
 
+**Hover any chunk** (on a mouse) and you get its biomes, whether it's a slime
+chunk, and its note without opening anything. While you're in chunk mode it
+also names untagged chunks, so you always know which one you're about to tap.
+
+### Don't know the biome?
+
+Hit **"Not sure? Answer a few questions"** and it plays twenty questions with
+you — *are there trees? is there snow on the ground? is bamboo growing?* — until
+it's worked out where you are.
+
+It isn't a fixed script. It holds the set of biomes still possible and each turn
+asks whichever question splits that set closest to in half, so every answer you
+give is worth as much as it can be. It also starts from the chunk's dimension,
+so it never wastes a question asking whether an overworld chunk is in the Nether.
+
+Simulating truthful answers for all 94 biomes: **4.2 questions on average, 7 at
+worst**, and the right biome is never eliminated. Once the list is down to eight
+it just shows them and lets you pick, because reading five names is faster than
+answering three more questions. A few legacy biomes are genuinely
+indistinguishable from each other by sight — those bottom out as a shortlist,
+which is the honest answer.
+
 ## Secret pins
 
 Long-press the server name in the top left and enter your **owner key** (a

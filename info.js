@@ -10,6 +10,7 @@ import { BLOCKS } from './data/blocks.js'
 import { ENCHANTS, ENCHANT_BASICS } from './data/enchants.js'
 import { MOB_NAMES, NAME_RULES } from './data/mobnames.js'
 import { BLOCK_NAMES, BLOCK_NAME_NOTE } from './data/blocknames.js'
+import { PLANS } from './data/plans.js'
 
 const $ = id => document.getElementById(id)
 const esc = s => String(s).replace(/[&<>"']/g,
@@ -50,6 +51,7 @@ const matches = (hay, q) => {
 }
 
 const TABS = [
+  { id: 'plans',    label: 'Plans',    placeholder: 'search build plans…' },
   { id: 'names',    label: 'Names',    placeholder: 'search — works on our names or the old ones' },
   { id: 'recipes',  label: 'Recipes',  placeholder: 'search recipes — "hopper", "golden carrot"…' },
   { id: 'enchants', label: 'Enchants', placeholder: 'search enchantments — "mending", "boots"…' },
@@ -125,6 +127,99 @@ function renderRecipes (q) {
       <div class="card-note">${esc(BREWING.note)}</div></div>`
   }
   return html || emptyState(q)
+}
+
+/* ══════════════════ build plans ══════════════════
+
+   Wall lengths, corners and block totals are all derived from the grid, so the
+   drawing IS the source of truth — same rule as the farm schematics. */
+
+function measurePlan (p) {
+  const g = p.grid, H = g.length, W = g[0].length
+  const solid = (x, y) => x >= 0 && x < W && y >= 0 && y < H && g[y][x] !== '.'
+  const runsH = [], runsV = [], corners = [], junctions = []
+
+  for (let y = 0; y < H; y++) for (let x = 0; x < W;) {
+    if (!solid(x, y)) { x++; continue }
+    const s0 = x; while (x < W && solid(x, y)) x++
+    if (x - s0 >= 2) runsH.push({ x: s0, y, n: x - s0 })
+  }
+  for (let x = 0; x < W; x++) for (let y = 0; y < H;) {
+    if (!solid(x, y)) { y++; continue }
+    const s0 = y; while (y < H && solid(x, y)) y++
+    if (y - s0 >= 2) runsV.push({ x, y: s0, n: y - s0 })
+  }
+  const counts = {}
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const k = g[y][x]
+    if (k === '.') continue
+    counts[k] = (counts[k] || 0) + 1
+    const L = solid(x - 1, y), R = solid(x + 1, y), U = solid(x, y - 1), D = solid(x, y + 1)
+    if ((L || R) && (U || D)) ([L, R, U, D].filter(Boolean).length >= 3 ? junctions : corners).push({ x, y })
+  }
+  return { W, H, runsH, runsV, corners, junctions, counts }
+}
+
+function planSvg (p, m) {
+  const S = 26, PAD = 34
+  const px = c => PAD + c * S
+  const o = [`<svg viewBox="0 0 ${m.W * S + PAD + 16} ${m.H * S + PAD + 16}" class="plan-svg">`]
+  for (let x = 0; x <= m.W; x++) o.push(`<line class="pg" x1="${px(x)}" y1="${px(0)}" x2="${px(x)}" y2="${px(m.H)}"/>`)
+  for (let y = 0; y <= m.H; y++) o.push(`<line class="pg" x1="${px(0)}" y1="${px(y)}" x2="${px(m.W)}" y2="${px(y)}"/>`)
+  for (let y = 0; y < m.H; y++) for (let x = 0; x < m.W; x++) {
+    const k = p.grid[y][x], sp = p.palette[k]
+    if (sp) o.push(`<rect x="${px(x)}" y="${px(y)}" width="${S}" height="${S}" fill="${sp.color}" stroke="${sp.edge}"/>`)
+  }
+  for (const c of m.corners) {
+    const a = px(c.x) + 4, b = px(c.y) + 4, e = S - 8
+    o.push(`<path class="pc" d="M${a} ${b} l${e} ${e} M${a + e} ${b} l-${e} ${e}"/>`)
+  }
+  for (const j of m.junctions)
+    o.push(`<rect class="pj" x="${px(j.x) + 5}" y="${px(j.y) + 5}" width="${S - 10}" height="${S - 10}"/>`)
+
+  const placed = []
+  const label = (cx, cy, n) => {
+    for (let i = 0; i < 12; i++) {
+      if (placed.every(q => Math.abs(cx - q[0]) > 24 || Math.abs(cy - q[1]) > 20)) break
+      cy += 20
+    }
+    placed.push([cx, cy])
+    o.push(`<g class="pl"><rect x="${cx - 12}" y="${cy - 10}" width="24" height="20" rx="5"/>` +
+           `<text x="${cx}" y="${cy + 5}">${n}</text></g>`)
+  }
+  const byLen = (a, b) => b.n - a.n
+  for (const r of [...m.runsH].sort(byLen)) label(px(r.x) + r.n * S / 2, px(r.y) + S / 2, r.n)
+  for (const r of [...m.runsV].sort(byLen)) label(px(r.x) + S / 2, px(r.y) + r.n * S / 2, r.n)
+
+  for (let x = 0; x < m.W; x += 5)
+    o.push(`<text class="pr" x="${px(x) + S / 2}" y="${px(m.H) + 15}" text-anchor="middle">${x}</text>`)
+  for (let y = 0; y < m.H; y += 5)
+    o.push(`<text class="pr" x="${px(0) - 8}" y="${px(y) + S / 2 + 4}" text-anchor="end">${y}</text>`)
+  o.push('</svg>')
+  return o.join('')
+}
+
+function renderPlans (q) {
+  const hits = PLANS.filter(p => matches(p.name + ' ' + p.note, q))
+  if (!hits.length) return emptyState(q)
+  return hits.map(p => {
+    const m = measurePlan(p)
+    const total = Object.values(m.counts).reduce((a, b) => a + b, 0)
+    const mats = Object.entries(m.counts)
+      .map(([k, n]) => `<span class="chip"><i class="swatch-sq" style="background:${p.palette[k].color}"></i> ${esc(p.palette[k].name)} &times;${n}</span>`).join('')
+    return `<h3 class="info-h">${esc(p.name)} <span class="muted-inline">${m.W} &times; ${m.H} blocks</span></h3>
+      <div class="card">
+        <div class="chips">${mats}
+          <span class="chip chip-best">${total} per layer</span>
+          <span class="chip">${m.corners.length} corners</span></div>
+        <div class="card-note">${esc(p.note)}</div>
+        <div class="legend">
+          <span class="legend-item"><svg width="13" height="13" viewBox="0 0 13 13"><path d="M2 2 l9 9 M11 2 l-9 9" stroke="#ff4d4d" stroke-width="2.6" stroke-linecap="round" fill="none"/></svg>corner &mdash; the wall turns</span>
+          <span class="legend-item"><svg width="13" height="13" viewBox="0 0 13 13"><rect x="2" y="2" width="9" height="9" fill="none" stroke="#4da6ff" stroke-width="2.4"/></svg>junction &mdash; a wall joins from the side</span>
+        </div>
+        <div class="plan-scroll">${planSvg(p, m)}</div>
+      </div>`
+  }).join('')
 }
 
 /* ══════════════════ names ══════════════════
@@ -402,6 +497,7 @@ function render () {
   }
 
   body.innerHTML =
+    tab === 'plans'    ? renderPlans(q) :
     tab === 'names'    ? renderNames(q) :
     tab === 'recipes'  ? renderRecipes(q) :
     tab === 'enchants' ? renderEnchants(q) :

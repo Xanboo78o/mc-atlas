@@ -400,6 +400,9 @@ button, input, textarea { font: inherit; color: inherit; }
 .chip-warn { color: #fbbf24; border-color: #fbbf2455; }
 .chip-best { color: var(--accent); border-color: var(--accent); }
 .chip-java { color: #f87171; border-color: #f8717155; }
+/* variants that have our own name — the highlighted ones stand out against
+   the plain ones, so the inconsistency is visible at a glance */
+.chip-ours { color: var(--accent); border-color: var(--accent); }
 .card-note.tip { color: var(--accent); }
 
 .info-list { margin: 8px 0 0; padding-left: 18px; font-size: 13px; line-height: 1.55; }

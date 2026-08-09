@@ -9,6 +9,7 @@ import { ORES } from './data/ores.js'
 import { BLOCKS } from './data/blocks.js'
 import { ENCHANTS, ENCHANT_BASICS } from './data/enchants.js'
 import { MOB_NAMES, NAME_RULES } from './data/mobnames.js'
+import { BLOCK_NAMES, BLOCK_NAME_NOTE } from './data/blocknames.js'
 
 const $ = id => document.getElementById(id)
 const esc = s => String(s).replace(/[&<>"']/g,
@@ -20,12 +21,15 @@ const esc = s => String(s).replace(/[&<>"']/g,
 const stem = w => w.replace(/(?:es|s)$/, '')
 
 const TRANSLATE = new Map()
-for (const m of MOB_NAMES) {
+for (const m of [...MOB_NAMES, ...BLOCK_NAMES]) {
   // drop the article: "the Tenants" is written as "Tenants" in prose
   const mine = m.name.toLowerCase().replace(/^(?:the|a) /, '')
   TRANSLATE.set(m.real, mine)
   if (!m.real.endsWith('s')) TRANSLATE.set(m.real + 's', mine)
 }
+
+// real block name -> ours, for the variant chips in the Blocks tab
+const BLOCK_RENAME = new Map(BLOCK_NAMES.map(b => [b.real.toLowerCase(), b.name]))
 
 // Token match: every word of the query must appear somewhere in the haystack,
 // literally, stemmed, or via its translation.
@@ -146,6 +150,21 @@ function renderNames (q) {
       </tr>`).join('')}
     </table></div>`
   }
+  const blockHits = BLOCK_NAMES.filter(b => matches(b.name + ' ' + b.real, q))
+  if (blockHits.length) {
+    html += `<h3 class="info-h">Blocks <span class="muted-inline">only some of them — that's the point</span></h3>
+      <div class="card">
+        ${q ? '' : `<div class="card-note">${esc(BLOCK_NAME_NOTE)}</div>`}
+        <table class="info-table">
+          <tr><th>what we call it</th><th>what the game calls it</th></tr>
+          ${blockHits.map(b => `<tr>
+            <td><strong>${esc(b.name)}</strong></td>
+            <td class="odds">${esc(b.real)}</td>
+          </tr>`).join('')}
+        </table>
+      </div>`
+  }
+
   return html || emptyState(q)
 }
 
@@ -330,8 +349,14 @@ function renderOres (q) {
 // Names first, but the prose counts too — so "Tall Guys" finds the grass block
 // they drop, not just blocks with that word in the title.
 function blockMatches (b, q) {
+  // a renamed variant is searchable under BOTH names — "copper slab" and
+  // "Statue of Liberty Fragments" both have to land here
+  const names = (b.variants || []).flatMap(v => {
+    const mine = BLOCK_RENAME.get(v.toLowerCase())
+    return mine ? [v, mine] : [v]
+  })
   return matches([
-    b.family, ...(b.variants || []), ...(b.search || []),
+    b.family, ...names, ...(b.search || []),
     b.found, ...(b.obtain || []), ...(b.unconventional || []),
   ].filter(Boolean).join(' '), q)
 }
@@ -342,7 +367,12 @@ function renderBlocks (q) {
   return '<div class="cardgrid">' + hits.map(b => `<div class="card">
     <div class="card-title">${esc(b.family)}
       <span class="chip ${b.renewable ? 'chip-good' : 'chip-warn'}">${b.renewable ? 'renewable' : 'finite'}</span></div>
-    <div class="chips">${(b.variants || []).map(v => `<span class="chip">${esc(v)}</span>`).join('')}</div>
+    <div class="chips">${(b.variants || []).map(v => {
+      const mine = BLOCK_RENAME.get(v.toLowerCase())
+      return mine
+        ? `<span class="chip chip-ours" title="${esc(v)}">${esc(mine)}</span>`
+        : `<span class="chip">${esc(v)}</span>`
+    }).join('')}</div>
     <div class="card-note"><strong>Found:</strong> ${esc(b.found)}</div>
     <div class="card-note"><strong>Tool:</strong> ${esc(b.tool)}</div>
     <ul class="info-list">${b.obtain.map(o => `<li>${esc(o)}</li>`).join('')}</ul>

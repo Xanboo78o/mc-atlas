@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0d1117">
+<title>Atlas</title>
+<link rel="stylesheet" href="style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>🗺️</text></svg>">
+</head>
+<body>
+
+<canvas id="map"></canvas>
+
+<header id="topbar">
+  <div class="brand">
+    <span class="brand-name" id="brandName">ATLAS</span>
+    <span class="brand-sub" id="coordReadout">0, 0</span>
+  </div>
+  <div class="spacer"></div>
+  <div class="dims" id="dimSwitch"></div>
+  <button class="icon-btn" id="searchBtn" title="Search" aria-label="Search">⌕</button>
+</header>
+
+<div id="filters" class="filters"></div>
+
+<div id="fabs">
+  <button class="fab fab-ghost" id="homeBtn" title="Back to spawn" aria-label="Back to spawn">◎</button>
+  <button class="fab fab-ghost" id="borderBtn" title="Draw a border" aria-label="Draw a border">⬡</button>
+  <button class="fab fab-main" id="addBtn" title="Add a pin" aria-label="Add a pin">+</button>
+</div>
+
+<!-- border drawing mode banner -->
+<div id="drawBar" class="drawbar hidden">
+  <span id="drawInfo">Tap the map to place corners — 3 or more.</span>
+  <button class="btn btn-ghost" id="drawUndo">Undo</button>
+  <button class="btn btn-ghost" id="drawCancel">Cancel</button>
+  <button class="btn btn-go" id="drawDone">Done</button>
+</div>
+
+<!-- ───────────────── sheets ───────────────── -->
+<div id="scrim" class="hidden"></div>
+
+<!-- pin detail -->
+<section id="detail" class="sheet hidden">
+  <div class="grabber"></div>
+  <div class="detail-head">
+    <span class="detail-glyph" id="dGlyph">◆</span>
+    <div>
+      <h2 id="dTitle">—</h2>
+      <div class="detail-meta" id="dMeta">—</div>
+    </div>
+  </div>
+  <button class="coordchip" id="dCoords" title="Tap to copy">0 0 0</button>
+  <div class="nether-hint hidden" id="dNether"></div>
+  <div class="detail-body" id="dBody"></div>
+  <div class="sheet-actions">
+    <button class="btn btn-ghost" id="dEdit">Edit</button>
+    <button class="btn btn-danger" id="dDelete">Delete</button>
+  </div>
+</section>
+
+<!-- add / edit pin -->
+<section id="editor" class="sheet hidden">
+  <div class="grabber"></div>
+  <h2 id="eHeading">New pin</h2>
+
+  <label class="field">
+    <span>Coordinates</span>
+    <input id="eCoords" type="text" inputmode="text" autocomplete="off"
+           placeholder="paste anything — 128, 71, -402">
+    <small id="eCoordsHint">Straight from the game. Any format works.</small>
+  </label>
+
+  <label class="field">
+    <span>Name</span>
+    <input id="eTitle" type="text" autocomplete="off" placeholder="Blake's tower">
+  </label>
+
+  <div class="field">
+    <span>Type</span>
+    <div class="kindpick" id="eKinds"></div>
+  </div>
+
+  <details class="more" id="eMore">
+    <summary>Add lore</summary>
+    <label class="field">
+      <span>What happened here</span>
+      <textarea id="eBody" rows="5" placeholder="The treaty was signed here on day 34. It lasted nine days."></textarea>
+    </label>
+  </details>
+
+  <label class="field">
+    <span>Your name</span>
+    <input id="eAuthor" type="text" autocomplete="off" placeholder="who are you">
+  </label>
+
+  <div class="sheet-actions">
+    <button class="btn btn-ghost" id="eCancel">Cancel</button>
+    <button class="btn btn-go" id="eSave">Save pin</button>
+  </div>
+</section>
+
+<!-- border editor -->
+<section id="bEditor" class="sheet hidden">
+  <div class="grabber"></div>
+  <h2 id="bHeading">New border</h2>
+
+  <label class="field">
+    <span>Territory name</span>
+    <input id="bName" type="text" autocomplete="off" placeholder="The Northern Reach">
+  </label>
+
+  <label class="field">
+    <span>Claimed by</span>
+    <input id="bOwner" type="text" autocomplete="off" placeholder="Blake &amp; co">
+  </label>
+
+  <div class="field">
+    <span>Colour</span>
+    <div class="colorpick" id="bColors"></div>
+  </div>
+
+  <details class="more">
+    <summary>Add lore</summary>
+    <label class="field">
+      <span>The story of this place</span>
+      <textarea id="bBody" rows="5" placeholder="Founded day 12. Went to war with the south on day 40."></textarea>
+    </label>
+  </details>
+
+  <label class="field">
+    <span>Your name</span>
+    <input id="bAuthor" type="text" autocomplete="off" placeholder="who are you">
+  </label>
+
+  <div class="sheet-actions">
+    <button class="btn btn-ghost" id="bCancel">Cancel</button>
+    <button class="btn btn-danger hidden" id="bDelete">Delete</button>
+    <button class="btn btn-go" id="bSave">Save border</button>
+  </div>
+</section>
+
+<!-- passphrase -->
+<section id="keyPad" class="sheet hidden">
+  <div class="grabber"></div>
+  <h2>Server key</h2>
+  <p class="muted">Anyone can read the atlas. Only the server can write to it.
+     Ask whoever runs it for the key — you'll only type this once.</p>
+  <label class="field">
+    <span>Key</span>
+    <input id="kInput" type="password" autocomplete="off" placeholder="••••••••">
+    <small id="kErr" class="err hidden">That key isn't right.</small>
+  </label>
+  <div class="sheet-actions">
+    <button class="btn btn-ghost" id="kCancel">Cancel</button>
+    <button class="btn btn-go" id="kGo">Unlock</button>
+  </div>
+</section>
+
+<!-- search -->
+<section id="searchPane" class="sheet hidden">
+  <div class="grabber"></div>
+  <label class="field">
+    <span>Search</span>
+    <input id="sInput" type="search" autocomplete="off" placeholder="name, lore, or who added it">
+  </label>
+  <div id="sResults" class="results"></div>
+</section>
+
+<div id="toast" class="toast hidden"></div>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>

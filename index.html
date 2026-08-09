@@ -21,8 +21,22 @@
   <button class="icon-btn owner-badge hidden" id="ownerBadge" title="Owner mode — tap to lock">🔓</button>
   <div class="spacer"></div>
   <div class="dims" id="dimSwitch"></div>
+  <button class="icon-btn" id="infoBtn" title="The Guide" aria-label="The Guide">✦</button>
   <button class="icon-btn" id="searchBtn" title="Search" aria-label="Search">⌕</button>
 </header>
+
+<!-- The Guide: full-screen reference panel, separate from the sheet system -->
+<section id="infoPanel" class="infopanel hidden">
+  <header class="info-head">
+    <h1>THE GUIDE</h1>
+    <div class="info-tabs" id="infoTabs"></div>
+    <button class="icon-btn" id="infoClose" aria-label="Close">✕</button>
+  </header>
+  <div class="info-searchrow">
+    <input id="infoSearch" type="search" autocomplete="off" placeholder="search…">
+  </div>
+  <div id="infoBody" class="info-body"></div>
+</section>
 
 <div id="filters" class="filters"></div>
 
@@ -273,5 +287,6 @@
 <div id="toast" class="toast hidden"></div>
 
 <script type="module" src="app.js"></script>
+<script type="module" src="info.js"></script>
 </body>
 </html>

@@ -104,6 +104,32 @@ create one, read one, or delete one.
 
 Tap the 🔓 badge to lock again.
 
+## The Guide
+
+The ✦ button opens a full-screen reference library — five tabs, all searchable,
+all static data shipped with the site (no database involved):
+
+- **Recipes** — ~110 crafting recipes drawn as real crafting grids, plus
+  smelting and a full brewing chart. Family recipes ("any planks", "any
+  material") cover every variant in one card.
+- **Farms** — layer-by-layer build guides for Bedrock-correct farm designs
+  (mob XP tower, iron farm, creeper farm). Tap through the layers; the
+  materials list is computed by counting the blocks in the diagrams, so it
+  can't drift out of sync with them.
+- **Loot** — what 18 structures and 26 mobs actually give you, with honest
+  approximate odds.
+- **Ores** — distribution charts across Y for every ore, best mining level
+  marked, and a strategy for each.
+- **Blocks** — where every block in the game comes from and every way to get
+  it, including the unconventional ones (frogs making froglights, bed-mining
+  ancient debris, the dripstone lava loop). Organised as ~70 families so the
+  whole registry stays searchable: type any block name and land somewhere.
+
+Data lives in `data/*.js` as plain modules. `node scripts/validate-data.mjs`
+checks all of it — ragged farm grids, legend chars that don't exist, duplicate
+block claims, out-of-world Y-ranges — and exits non-zero so it can gate a
+commit.
+
 ## Setup
 
 ### 1. Database

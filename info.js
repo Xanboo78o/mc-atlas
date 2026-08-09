@@ -8,21 +8,42 @@ import { STRUCTURES, MOBS } from './data/loot.js'
 import { ORES } from './data/ores.js'
 import { BLOCKS } from './data/blocks.js'
 import { ENCHANTS, ENCHANT_BASICS } from './data/enchants.js'
+import { MOB_NAMES, NAME_RULES } from './data/mobnames.js'
 
 const $ = id => document.getElementById(id)
 const esc = s => String(s).replace(/[&<>"']/g,
   c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]))
 
-// Token match: every word of the query must appear somewhere in the haystack.
-// "warped fence gate" then finds the wood-pieces family via 'warped' + 'fence
-// gate' even though no single string contains the whole phrase.
+// Old game name -> ours. The Guide only ever DISPLAYS our names, but someone
+// typing "creeper" should still land on the Hisses entries — otherwise the
+// running joke breaks the reference tool, which defeats the point.
+const stem = w => w.replace(/(?:es|s)$/, '')
+
+const TRANSLATE = new Map()
+for (const m of MOB_NAMES) {
+  // drop the article: "the Tenants" is written as "Tenants" in prose
+  const mine = m.name.toLowerCase().replace(/^(?:the|a) /, '')
+  TRANSLATE.set(m.real, mine)
+  if (!m.real.endsWith('s')) TRANSLATE.set(m.real + 's', mine)
+}
+
+// Token match: every word of the query must appear somewhere in the haystack,
+// literally, stemmed, or via its translation.
+// "warped fence gate" finds the wood-pieces family via 'warped' + 'fence gate'
+// even though no single string contains the whole phrase.
 const matches = (hay, q) => {
   if (!q) return true
   const h = hay.toLowerCase()
-  return q.split(/\s+/).every(w => h.includes(w))
+  return q.split(/\s+/).every(w => {
+    if (h.includes(w)) return true
+    if (h.includes(stem(w))) return true          // "Hisses" typed, "Hiss" written
+    const mine = TRANSLATE.get(w) || TRANSLATE.get(stem(w))
+    return !!mine && (h.includes(mine) || h.includes(stem(mine)))
+  })
 }
 
 const TABS = [
+  { id: 'names',    label: 'Names',    placeholder: 'search — works on our names or the old ones' },
   { id: 'recipes',  label: 'Recipes',  placeholder: 'search recipes — "hopper", "golden carrot"…' },
   { id: 'enchants', label: 'Enchants', placeholder: 'search enchantments — "mending", "boots"…' },
   { id: 'farms',    label: 'Farms',    placeholder: 'search farms…' },
@@ -95,6 +116,35 @@ function renderRecipes (q) {
         ${BREWING.modifiers.map(m => `<tr><td>${esc(m.add)}</td><td>${esc(m.does)}</td></tr>`).join('')}
       </table>
       <div class="card-note">${esc(BREWING.note)}</div></div>`
+  }
+  return html || emptyState(q)
+}
+
+/* ══════════════════ names ══════════════════
+
+   The Guide uses these names everywhere. The real game names live only in the
+   search index, so typing "creeper" still lands on Hisses — the joke stays
+   intact while the tool stays usable for anyone who doesn't know the words. */
+
+const NAME_GROUPS = ['People', 'Livestock', 'Staff', 'Nuisances', 'Management']
+
+function renderNames (q) {
+  let html = ''
+  if (!q) {
+    html += `<h3 class="info-h">The rules</h3>
+      <div class="card"><ul class="info-list">${NAME_RULES.map(r => `<li>${esc(r)}</li>`).join('')}</ul></div>`
+  }
+  for (const g of NAME_GROUPS) {
+    const hits = MOB_NAMES.filter(m => m.group === g &&
+      matches([m.name, m.real, m.note].filter(Boolean).join(' '), q))
+    if (!hits.length) continue
+    html += `<h3 class="info-h">${g}</h3><div class="card"><table class="info-table">
+      <tr><th>what we call it</th><th>what the game calls it</th></tr>
+      ${hits.map(m => `<tr>
+        <td><strong>${esc(m.name)}</strong>${m.note ? `<div class="card-note">${esc(m.note)}</div>` : ''}</td>
+        <td class="odds">${esc(m.real)}</td>
+      </tr>`).join('')}
+    </table></div>`
   }
   return html || emptyState(q)
 }
@@ -221,7 +271,7 @@ function renderLoot (q) {
   const sHits = STRUCTURES.filter(s =>
     matches(s.name + ' ' + s.where + ' ' + s.note + ' ' + s.highlights.map(h => h.item).join(' '), q))
   const mHits = MOBS.filter(m =>
-    matches(m.mob + ' ' + m.drops.join(' ') + ' ' + m.rare.join(' '), q))
+    matches([m.mob, m.real, ...m.drops, ...m.rare].filter(Boolean).join(' '), q))
 
   let html = ''
   if (sHits.length) {
@@ -277,8 +327,13 @@ function renderOres (q) {
 
 /* ══════════════════ blocks ══════════════════ */
 
+// Names first, but the prose counts too — so "Tall Guys" finds the grass block
+// they drop, not just blocks with that word in the title.
 function blockMatches (b, q) {
-  return matches(b.family + ' ' + (b.variants || []).join(' ') + ' ' + (b.search || []).join(' '), q)
+  return matches([
+    b.family, ...(b.variants || []), ...(b.search || []),
+    b.found, ...(b.obtain || []), ...(b.unconventional || []),
+  ].filter(Boolean).join(' '), q)
 }
 
 function renderBlocks (q) {
@@ -313,6 +368,7 @@ function render () {
   }
 
   body.innerHTML =
+    tab === 'names'    ? renderNames(q) :
     tab === 'recipes'  ? renderRecipes(q) :
     tab === 'enchants' ? renderEnchants(q) :
     tab === 'farms'    ? renderFarmList(q) :

@@ -109,6 +109,9 @@ Tap the 🔓 badge to lock again.
 The ✦ button opens a full-screen reference library — five tabs, all searchable,
 all static data shipped with the site (no database involved):
 
+- **Names** — the server's own name for every mob. The whole Guide is written
+  in them, so this tab is the translation table. Search works in both
+  directions: type "creeper" or type "Hisses", same result.
 - **Recipes** — crafting recipes drawn as real crafting grids, plus smelting
   and a full brewing chart. Family recipes ("any planks", "any material")
   cover every variant in one card.
@@ -129,6 +132,11 @@ all static data shipped with the site (no database involved):
   it, including the unconventional ones (frogs making froglights, bed-mining
   ancient debris, the dripstone lava loop). Organised as ~70 families so the
   whole registry stays searchable: type any block name and land somewhere.
+
+**Every mob in the Guide goes by its server name** — Oinks, Hisses, Groaners,
+Chicky D, the Sleep Police. Villagers are the exception: they're people, so
+they get called Tenants and addressed properly. The real game names live only
+in the search index, so the joke never breaks the reference.
 
 It tracks current Minecraft: copper armor, tools, golems and chests from The
 Copper Age; sulfur, cinnabar and geysers from Chaos Cubed; the spear and its

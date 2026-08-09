@@ -20,7 +20,7 @@ export const ORES = [
     tool: 'stone pickaxe or better',
     fortune: 'Fortune works — up to 5 raw copper per ore at Fortune III.',
     where: 'Y −16 to 112, most at Y 48. Dripstone caves generate noticeably more.',
-    strat: 'Find a dripstone cave and just cave it — copper is so dense there you never need to branch mine. Each ore drops 2–3 raw copper already, so a single trip fills a shulker.',
+    strat: 'Find a dripstone cave and just cave it — copper is so dense there you never need to branch mine. Each ore drops 2–3 raw copper already, so a single trip fills a Box.',
   },
   {
     id: 'iron', name: 'Iron', color: '#d8af93',
@@ -47,7 +47,7 @@ export const ORES = [
     tool: 'any pickaxe',
     fortune: 'Fortune III averages ~8.8 nuggets per ore. Silk Touch gives the ore block, smeltable to a full ingot.',
     where: 'All over the Nether in netherrack, any level. Gilded blackstone in bastions also drops nuggets.',
-    strat: 'Drops nuggets when mined normally — Silk Touch + smelting gives full ingots and is strictly better if you have a spare pick. Piglin bartering converts gold back into ender pearls, fire res potions and string, so gold is the Nether’s currency both ways.',
+    strat: 'Drops nuggets when mined normally — Silk Touch + smelting gives full ingots and is strictly better if you have a spare pick. Gold Guy bartering converts gold back into ender pearls, fire res potions and string, so gold is the Nether’s currency both ways.',
   },
   {
     id: 'redstone', name: 'Redstone', color: '#e33b3b',
@@ -56,7 +56,7 @@ export const ORES = [
     tool: 'iron pickaxe or better',
     fortune: 'Fortune III averages ~6 dust per ore.',
     where: 'Y −64 to 15, getting denser the deeper you go.',
-    strat: 'Mine it while diamond mining — same layer, same tunnels. It gets more common right down at bedrock, so if you specifically want redstone, hug Y −59 and take everything you pass. Witches and trades cover small amounts.',
+    strat: 'Mine it while diamond mining — same layer, same tunnels. It gets more common right down at bedrock, so if you specifically want redstone, hug Y −59 and take everything you pass. Chemists and trades cover small amounts.',
   },
   {
     id: 'lapis', name: 'Lapis Lazuli', color: '#3e63d6',
@@ -65,7 +65,7 @@ export const ORES = [
     tool: 'stone pickaxe or better',
     fortune: 'Fortune III averages ~11 lapis per ore.',
     where: 'Y −64 to 64, peaking at Y 0.',
-    strat: 'Y 0 is an awkward layer nobody mines on purpose — so lapis mostly arrives as a side effect of caving. If you are short for enchanting, one dedicated hour at Y 0 with Fortune sets you up for life. Cleric villagers also sell it for one emerald.',
+    strat: 'Y 0 is an awkward layer nobody mines on purpose — so lapis mostly arrives as a side effect of caving. If you are short for enchanting, one dedicated hour at Y 0 with Fortune sets you up for life. Cleric Tenants also sell it for one emerald.',
   },
   {
     id: 'diamond', name: 'Diamond', color: '#4fd8d5',
@@ -83,7 +83,7 @@ export const ORES = [
     tool: 'iron pickaxe or better',
     fortune: 'Fortune III averages ~2.2 per ore.',
     where: 'ONLY mountain biomes (meadow, grove, peaks, windswept hills). Single-block ores, peaking way up at Y 232.',
-    strat: 'The ore is a novelty — real emeralds come from trading. One farmer villager with a composter buys wheat and carrots endlessly. Ore-wise: high peaks in mountain biomes, surface-visible, same trip as your mountain iron run.',
+    strat: 'The ore is a novelty — real emeralds come from trading. One farmer Tenant with a composter buys wheat and carrots endlessly. Ore-wise: high peaks in mountain biomes, surface-visible, same trip as your mountain iron run.',
   },
   {
     id: 'quartz', name: 'Nether Quartz', color: '#e6dfd3',

@@ -403,6 +403,8 @@ button, input, textarea { font: inherit; color: inherit; }
 /* variants that have our own name — the highlighted ones stand out against
    the plain ones, so the inconsistency is visible at a glance */
 .chip-ours { color: var(--accent); border-color: var(--accent); }
+.chip-restricted { color: var(--danger); border-color: var(--danger); letter-spacing: .08em; }
+.card:has(.chip-restricted) { border-color: var(--danger); }
 .card-note.tip { color: var(--accent); }
 
 .info-list { margin: 8px 0 0; padding-left: 18px; font-size: 13px; line-height: 1.55; }

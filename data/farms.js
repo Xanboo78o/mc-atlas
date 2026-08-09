@@ -6,7 +6,7 @@
 //
 // All three designs follow Bedrock rules, which differ from Java:
 // hostile mobs spawn 24–44 blocks from you, Security come from village
-// stats (no Groaner scare needed), and mob height limits gate what can
+// stats (no Zimmy’s scare needed), and mob height limits gate what can
 // spawn under a lowered ceiling.
 
 export const FARMS = [
@@ -100,7 +100,7 @@ export const FARMS = [
     ],
     bedrockNotes: [
       'Bedrock spawning: hostiles spawn 24–44 blocks from you and despawn beyond that range inside simulation distance. AFK spot placement is everything.',
-      'Baby Groaners survive the fall — finish them through the slab window.',
+      'Baby Zimmy’s survive the fall — finish them through the slab window.',
       'Legs can spawn on the 5×5 pads. If they clog the channels, run a line of buttons across the pad centres to break up the 3×3 spaces they need.',
       'Building over deep ocean sidesteps cave-spawn competition entirely — there is nowhere else for mobs to go.',
     ],
@@ -109,7 +109,7 @@ export const FARMS = [
   {
     id: 'iron_farm',
     name: 'Iron Farm',
-    purpose: 'Bedrock villages spawn Security on their own when the village is healthy — no Groaner needed, unlike Java. Trap the Tenants overhead, make the platform the only valid spawn spot, and cook every Security that appears.',
+    purpose: 'Bedrock villages spawn Security on their own when the village is healthy — no Zimmy’s needed, unlike Java. Trap the Tenants overhead, make the platform the only valid spawn spot, and cook every Security that appears.',
     yields: ['iron ingots', 'poppies'],
     footprint: '11 × 11 platform + Tenant pod, about 15 tall',
     legend: {
@@ -250,7 +250,7 @@ export const FARMS = [
     ],
     bedrockNotes: [
       'Bedrock Security rules: Tenants must have worked recently, every Tenant needs a bed, and more Tenants allow more simultaneous Security (roughly one per ten). 10 Tenants + 20 beds is the compact sweet spot.',
-      'No Groaner needed — that’s a Java mechanic. Bedrock villages simply produce Security when healthy.',
+      'No Zimmy’s needed — that’s a Java mechanic. Bedrock villages simply produce Security when healthy.',
       'If Security appear on nearby terrain instead of the platform, some surface within village range is still spawnable — slab it.',
       'The farm only runs inside simulation distance, so build it near your AFK spot.',
     ],
@@ -259,7 +259,7 @@ export const FARMS = [
   {
     id: 'creeper_farm',
     name: 'Hiss Farm',
-    purpose: 'Gunpowder machine. Open trapdoors on the ceiling drop the room height to ~1.8 blocks — Hisses (1.7) fit, Groaners and Rattlers (1.95) don’t, and 2-wide corridors deny Legs. Hiss Repellent at the front scare every Hiss out the back holes into a lethal drop.',
+    purpose: 'Gunpowder machine. Open trapdoors on the ceiling drop the room height to ~1.8 blocks — Hisses (1.7) fit, Zimmy’s and Rattlers (1.95) don’t, and 2-wide corridors deny Legs. Hiss Repellent at the front scare every Hiss out the back holes into a lethal drop.',
     yields: ['gunpowder (rockets, TNT)'],
     footprint: '13 × 10, about 30 tall with the drop',
     legend: {
@@ -319,7 +319,7 @@ export const FARMS = [
         'S..S..S..S..S',
         'SSSSSSSSSSSSS',
       ]},
-      { y: 'Y+27 — ceiling + trapdoors', note: 'Solid ceiling with a trapdoor flipped open flat against its underside over every corridor cell. Miss a trapdoor and Groaners move in.', grid: [
+      { y: 'Y+27 — ceiling + trapdoors', note: 'Solid ceiling with a trapdoor flipped open flat against its underside over every corridor cell. Miss a trapdoor and Zimmy’s move in.', grid: [
         'SSSSSSSSSSSSS',
         'STTSTTSTTSTTS',
         'STTSTTSTTSTTS',
@@ -340,7 +340,7 @@ export const FARMS = [
       'AFK 24–44 blocks from the corridors — directly above the collection chest usually lands in range.',
     ],
     bedrockNotes: [
-      'The height filter: Hisses are 1.7 blocks tall; Groaners, Rattlers and Chemists are 1.95. An open trapdoor against the ceiling leaves ~1.8 — only Hisses can spawn.',
+      'The height filter: Hisses are 1.7 blocks tall; Zimmy’s, Rattlers and Chemists are 1.95. An open trapdoor against the ceiling leaves ~1.8 — only Hisses can spawn.',
       'Legs need a 3×3 space — 2-wide corridors deny them. Don’t widen the corridors.',
       'Hiss Repellent, not Fake Hiss Repellent. Hiss fear of Hiss Repellent works the same on Bedrock and is the engine of the farm.',
       'If spawns feel slow, check simulation distance — corridors outside it are dead.',

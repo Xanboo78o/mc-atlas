@@ -18,14 +18,17 @@ const esc = s => String(s).replace(/[&<>"']/g,
 // Old game name -> ours. The Guide only ever DISPLAYS our names, but someone
 // typing "creeper" should still land on the Hisses entries — otherwise the
 // running joke breaks the reference tool, which defeats the point.
+// Apostrophes are curly in the prose and straight on a keyboard, so both sides
+// get flattened — "zimmys", "zimmy's" and "Zimmy’s" all have to match.
+const norm = s => s.toLowerCase().replace(/[’'`]/g, '')
 const stem = w => w.replace(/(?:es|s)$/, '')
 
 const TRANSLATE = new Map()
 for (const m of [...MOB_NAMES, ...BLOCK_NAMES]) {
   // drop the article: "the Tenants" is written as "Tenants" in prose
-  const mine = m.name.toLowerCase().replace(/^(?:the|a) /, '')
-  TRANSLATE.set(m.real, mine)
-  if (!m.real.endsWith('s')) TRANSLATE.set(m.real + 's', mine)
+  const mine = norm(m.name).replace(/^(?:the|a) /, '')
+  TRANSLATE.set(norm(m.real), mine)
+  if (!m.real.endsWith('s')) TRANSLATE.set(norm(m.real) + 's', mine)
 }
 
 // real block name -> ours, for the variant chips in the Blocks tab
@@ -37,8 +40,8 @@ const BLOCK_RENAME = new Map(BLOCK_NAMES.map(b => [b.real.toLowerCase(), b.name]
 // even though no single string contains the whole phrase.
 const matches = (hay, q) => {
   if (!q) return true
-  const h = hay.toLowerCase()
-  return q.split(/\s+/).every(w => {
+  const h = norm(hay)
+  return norm(q).split(/\s+/).filter(Boolean).every(w => {
     if (h.includes(w)) return true
     if (h.includes(stem(w))) return true          // "Hisses" typed, "Hiss" written
     const mine = TRANSLATE.get(w) || TRANSLATE.get(stem(w))
@@ -366,7 +369,8 @@ function renderBlocks (q) {
   if (!hits.length) return emptyState(q, 'No block by that name — try part of the word, like "fence" or "sculk".')
   return '<div class="cardgrid">' + hits.map(b => `<div class="card">
     <div class="card-title">${esc(b.family)}
-      <span class="chip ${b.renewable ? 'chip-good' : 'chip-warn'}">${b.renewable ? 'renewable' : 'finite'}</span></div>
+      <span class="chip ${b.renewable ? 'chip-good' : 'chip-warn'}">${b.renewable ? 'renewable' : 'finite'}</span>
+      ${b.restricted ? '<span class="chip chip-restricted">restricted</span>' : ''}</div>
     <div class="chips">${(b.variants || []).map(v => {
       const mine = BLOCK_RENAME.get(v.toLowerCase())
       return mine

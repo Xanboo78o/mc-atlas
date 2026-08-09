@@ -82,6 +82,9 @@ export const BLOCK_NAMES = [
   { real: 'beehive', name: 'Fake Bee Nest' },
   { real: 'tinted glass', name: 'Sunglasses' },
 
+  // ── not a joke ──
+  { real: 'sugar cane', name: 'My Sugar Cane' },
+
   // ── the new stuff ──
   { real: 'cushion', name: 'Sit Block' },
   { real: 'straw bed', name: 'Hay Nap' },

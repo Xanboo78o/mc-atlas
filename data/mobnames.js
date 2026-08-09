@@ -55,9 +55,12 @@ export const MOB_NAMES = [
   { name: 'the Intern', real: 'copper golem', group: 'Staff' },
 
   // ── nuisances ──
-  { name: 'Groaners', real: 'zombie', group: 'Nuisances' },
-  { name: 'Desert Groaners', real: 'husk', group: 'Nuisances' },
-  { name: 'Wet Groaners', real: 'drowned', group: 'Nuisances' },
+  { name: 'Zimmy’s', real: 'zombie', group: 'Nuisances',
+    note: 'Zimmy is one guy. There are a lot of him.' },
+  { name: 'Zimmy’s dad', real: 'husk', group: 'Nuisances',
+    note: 'Drier. Angrier. Does not burn in daylight.' },
+  { name: 'Zimmy’s bro', real: 'drowned', group: 'Nuisances',
+    note: 'Moved to the water. Owns a trident now. Insufferable about it.' },
   { name: 'Rattlers', real: 'skeleton', group: 'Nuisances' },
   { name: 'Cold Rattlers', real: 'stray', group: 'Nuisances' },
   { name: 'Mossy Rattlers', real: 'bogged', group: 'Nuisances' },
@@ -94,7 +97,7 @@ export const MOB_NAMES = [
   { name: 'The Stalker', real: 'creaking', group: 'Nuisances' },
 
   // ── management ──
-  { name: "The Landlord's Landlord", real: 'warden', group: 'Management',
+  { name: 'The Landlord’s Landlord', real: 'warden', group: 'Management',
     note: 'Outranks everyone. Do not file a complaint.' },
   { name: 'The Big One', real: 'ender dragon', group: 'Management' },
   { name: 'Three Heads', real: 'wither', group: 'Management' },

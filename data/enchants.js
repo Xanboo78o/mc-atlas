@@ -83,7 +83,7 @@ export const ENCHANTS = [
     exclusive: 'Smite / Bane of Arthropods',
     tip: 'The general-purpose choice. Smite out-damages it, but only against undead.' },
   { id: 'smite', name: 'Smite', max: 'V', cat: 'Melee', items: 'sword, axe, spear, mace',
-    what: 'Huge bonus damage to undead — Groaners, Rattlers, Wet Groaners, Three Heads, Sleep Police.',
+    what: 'Huge bonus damage to undead — Zimmy’s, Rattlers, Zimmy’s bro, Three Heads, Sleep Police.',
     exclusive: 'Sharpness / Bane of Arthropods',
     tip: 'A Smite V axe is the fastest way to kill the Three Heads. Keep one in a chest for exactly that.' },
   { id: 'bane', name: 'Bane of Arthropods', max: 'V', cat: 'Melee', items: 'sword, axe, spear, mace',
@@ -174,7 +174,7 @@ export const ENCHANTS = [
     tip: 'Riptide plus elytra in a storm is the fastest launch in the game.' },
   { id: 'impaling', name: 'Impaling', max: 'V', cat: 'Trident', items: 'trident',
     what: 'Bonus damage to aquatic mobs.',
-    tip: 'Eye farms and Wet Groaners. On Bedrock it hits anything standing in water, which is broader than Java.' },
+    tip: 'Eye farms and Zimmy’s bro. On Bedrock it hits anything standing in water, which is broader than Java.' },
 
   // ───────────── universal ─────────────
   { id: 'unbreaking', name: 'Unbreaking', max: 'III', cat: 'Universal', items: 'almost everything',

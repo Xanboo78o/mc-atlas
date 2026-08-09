@@ -74,7 +74,7 @@ export const STRUCTURES = [
       { item: 'Emeralds', odds: 'uncommon' },
       { item: 'Golden apple', odds: 'uncommon' },
     ],
-    note: 'Wet Groaners with tridents patrol these — which is also the only way to get a trident.',
+    note: 'Zimmy’s bro with tridents patrol these — which is also the only way to get a trident.',
   },
   {
     name: 'Igloo', where: 'Snowy biomes. Half of them hide a basement under the carpet.',
@@ -203,14 +203,14 @@ export const STRUCTURES = [
 ]
 
 export const MOBS = [
-  { mob: 'Groaner', real: 'zombie', drops: ['rotten flesh'], rare: ['iron ingot', 'carrot', 'potato'], xp: 5 },
+  { mob: 'Zimmy’s', real: 'zombie', drops: ['rotten flesh'], rare: ['iron ingot', 'carrot', 'potato'], xp: 5 },
   { mob: 'Rattler', real: 'skeleton', drops: ['bones', 'arrows'], rare: ['bow (sometimes enchanted)'], xp: 5 },
   { mob: 'Hiss', real: 'creeper', drops: ['gunpowder'], rare: ['music disc — when a Rattler kills it'], xp: 5 },
   { mob: 'Legs', real: 'spider', drops: ['string'], rare: ['spider eye'], xp: 5 },
   { mob: 'Tall Guy', real: 'enderman', drops: ['ender pearl'], rare: [], xp: 5 },
   { mob: 'Chemist', real: 'witch', drops: ['redstone', 'glowstone dust', 'sugar', 'gunpowder'], rare: ['potion she was drinking'], xp: 5 },
-  { mob: 'Wet Groaners', real: 'drowned', drops: ['rotten flesh', 'copper ingot'], rare: ['trident (only if holding one)', 'nautilus shell'], xp: 5 },
-  { mob: 'Desert Groaner', real: 'husk', drops: ['rotten flesh'], rare: ['iron ingot'], xp: 5 },
+  { mob: 'Zimmy’s bro', real: 'drowned', drops: ['rotten flesh', 'copper ingot'], rare: ['trident (only if holding one)', 'nautilus shell'], xp: 5 },
+  { mob: 'Zimmy’s dad', real: 'husk', drops: ['rotten flesh'], rare: ['iron ingot'], xp: 5 },
   { mob: 'Cold Rattler', real: 'stray', drops: ['bones', 'arrows'], rare: ['arrow of slowness — only source'], xp: 5 },
   { mob: 'Cube', real: 'slime', drops: ['slimeballs (small ones)'], rare: [], xp: '1–4 per size' },
   { mob: 'Stinky Cube', real: 'sulfur cube', drops: ['potent sulfur'], rare: [], xp: '1–4 per size' },

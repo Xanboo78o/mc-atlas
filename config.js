@@ -86,8 +86,7 @@ export const BIOMES = [
   { key: 'windswept_savanna',        label: 'Windswept Savanna',         color: '#e5da87', group: 'Overworld' },
   { key: 'wooded_badlands',          label: 'Wooded Badlands',           color: '#b09765', group: 'Overworld' },
   { key: 'sulfur_caves',             label: 'Sulfur Caves',              color: '#d4c22e', group: 'Overworld' },
-  // fall 2026 drop — experimental in Bedrock 26.40, full release ~26.50
-  { key: 'dappled_forest',           label: 'Dappled Forest (upcoming)', color: '#d97b2e', group: 'Overworld' },
+  { key: 'dappled_forest',           label: 'Dappled Forest',            color: '#d97b2e', group: 'Overworld' },
 
   // ── Nether ──
   { key: 'nether_wastes',     label: 'Nether Wastes',     color: '#bf3b3b', group: 'Nether' },

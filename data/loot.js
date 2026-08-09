@@ -183,12 +183,13 @@ export const STRUCTURES = [
     note: 'Cave spiders spawn here naturally — the first place outside a spawner they ever have. Bring milk.',
   },
   {
-    name: 'Abandoned Camp (upcoming)', where: 'Coming with the dappled forest drop; generates across 17 biomes.',
+    name: 'Abandoned Camp', where: 'Small deserted camps across 17 biomes — white wool stairs, straw beds, and fencing that matches the local wood.',
     highlights: [
-      { item: 'Explorer maps (8 biome + 4 structure)', odds: 'usually' },
+      { item: 'Explorer maps — 8 biome + 4 structure', odds: 'usually' },
       { item: 'Hidden oxidized copper chest', odds: 'uncommon' },
+      { item: 'Straw beds and camp supplies', odds: 'usually' },
     ],
-    note: 'Not in the game yet — listed so you know what to look for the day the drop lands.',
+    note: 'The structure maps point at ancient cities, mineshafts, desert pyramids and warm ocean ruins — a camp is basically a to-do list for your next month.',
   },
   {
     name: 'Village', where: 'Chests in houses vary by building: weaponsmith, toolsmith, temple, etc.',

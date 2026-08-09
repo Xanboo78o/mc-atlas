@@ -132,8 +132,8 @@ all static data shipped with the site (no database involved):
 
 It tracks current Minecraft: copper armor, tools, golems and chests from The
 Copper Age; sulfur, cinnabar and geysers from Chaos Cubed; the spear and its
-Lunge enchantment. The dappled forest set is in there too, clearly marked as
-not-out-yet so nobody hunts for blocks that don't exist.
+Lunge enchantment; and the dappled forest — poplar wood, shelf mushrooms,
+cushions, straw beds, wool and concrete stairs and slabs, and abandoned camps.
 
 Data lives in `data/*.js` as plain modules. `node scripts/validate-data.mjs`
 checks all of it — ragged farm grids, legend chars that don't exist, duplicate

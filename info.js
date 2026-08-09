@@ -7,6 +7,7 @@ import { FARMS } from './data/farms.js'
 import { STRUCTURES, MOBS } from './data/loot.js'
 import { ORES } from './data/ores.js'
 import { BLOCKS } from './data/blocks.js'
+import { ENCHANTS, ENCHANT_BASICS } from './data/enchants.js'
 
 const $ = id => document.getElementById(id)
 const esc = s => String(s).replace(/[&<>"']/g,
@@ -22,11 +23,12 @@ const matches = (hay, q) => {
 }
 
 const TABS = [
-  { id: 'recipes', label: 'Recipes', placeholder: 'search recipes — "hopper", "golden carrot"…' },
-  { id: 'farms',   label: 'Farms',   placeholder: 'search farms…' },
-  { id: 'loot',    label: 'Loot',    placeholder: 'search structures and mob drops…' },
-  { id: 'ores',    label: 'Ores',    placeholder: 'search ores…' },
-  { id: 'blocks',  label: 'Blocks',  placeholder: 'type ANY block — "warped fence gate", "froglight"…' },
+  { id: 'recipes',  label: 'Recipes',  placeholder: 'search recipes — "hopper", "golden carrot"…' },
+  { id: 'enchants', label: 'Enchants', placeholder: 'search enchantments — "mending", "boots"…' },
+  { id: 'farms',    label: 'Farms',    placeholder: 'search farms…' },
+  { id: 'loot',     label: 'Loot',     placeholder: 'search structures and mob drops…' },
+  { id: 'ores',     label: 'Ores',     placeholder: 'search ores…' },
+  { id: 'blocks',   label: 'Blocks',   placeholder: 'type ANY block — "warped fence gate", "froglight"…' },
 ]
 
 let tab = localStorage.getItem('atlas.infoTab') || 'recipes'
@@ -93,6 +95,49 @@ function renderRecipes (q) {
         ${BREWING.modifiers.map(m => `<tr><td>${esc(m.add)}</td><td>${esc(m.does)}</td></tr>`).join('')}
       </table>
       <div class="card-note">${esc(BREWING.note)}</div></div>`
+  }
+  return html || emptyState(q)
+}
+
+/* ══════════════════ enchantments ══════════════════ */
+
+const ENCH_ORDER = ['Universal', 'Armor', 'Melee', 'Mace & Spear', 'Tools', 'Ranged', 'Trident', 'Curses']
+
+// **bold** in the basics lists — the only markup these strings carry
+const lite = s => esc(s).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+
+function renderEnchants (q) {
+  let html = ''
+  for (const cat of ENCH_ORDER) {
+    const hits = ENCHANTS.filter(e => e.cat === cat &&
+      matches([e.name, e.items, e.what, e.tip, e.source, e.exclusive].filter(Boolean).join(' '), q))
+    if (!hits.length) continue
+    html += `<h3 class="info-h">${cat}</h3><div class="cardgrid">` + hits.map(e => `
+      <div class="card">
+        <div class="card-title">${esc(e.name)}
+          <span class="chip chip-best">${esc(e.max)}</span>
+          ${e.treasure ? '<span class="chip chip-warn">treasure</span>' : ''}
+          ${e.edition ? `<span class="chip chip-java">${esc(e.edition)}</span>` : ''}
+        </div>
+        <div class="card-note"><strong>Goes on:</strong> ${esc(e.items)}</div>
+        <div class="card-note">${esc(e.what)}</div>
+        ${e.source ? `<div class="card-note"><strong>Only from:</strong> ${esc(e.source)}</div>` : ''}
+        ${e.exclusive ? `<div class="card-note"><strong>Won’t combine with:</strong> ${esc(e.exclusive)}</div>` : ''}
+        <div class="card-note tip">✦ ${esc(e.tip)}</div>
+      </div>`).join('') + '</div>'
+  }
+
+  // the how-to blocks only show on an empty search — they'd be noise otherwise
+  if (!q) {
+    const section = (title, lines) =>
+      `<div class="card"><div class="card-title">${title}</div>
+       <ul class="info-list">${lines.map(l => `<li>${lite(l)}</li>`).join('')}</ul></div>`
+    html = `<h3 class="info-h">How enchanting works</h3><div class="cardgrid">
+      ${section('The table', ENCHANT_BASICS.table)}
+      ${section('Anvils', ENCHANT_BASICS.anvil)}
+      ${section('Grindstone', ENCHANT_BASICS.grindstone)}
+      ${section('Librarians — the real source', ENCHANT_BASICS.villagers)}
+    </div>` + html
   }
   return html || emptyState(q)
 }
@@ -268,10 +313,11 @@ function render () {
   }
 
   body.innerHTML =
-    tab === 'recipes' ? renderRecipes(q) :
-    tab === 'farms'   ? renderFarmList(q) :
-    tab === 'loot'    ? renderLoot(q) :
-    tab === 'ores'    ? renderOres(q) :
+    tab === 'recipes'  ? renderRecipes(q) :
+    tab === 'enchants' ? renderEnchants(q) :
+    tab === 'farms'    ? renderFarmList(q) :
+    tab === 'loot'     ? renderLoot(q) :
+    tab === 'ores'     ? renderOres(q) :
     renderBlocks(q)
 }
 

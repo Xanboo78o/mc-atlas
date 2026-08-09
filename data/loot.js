@@ -174,6 +174,23 @@ export const STRUCTURES = [
     note: 'Caged allays often generate beside the tower — free them and they follow you, fetching item copies forever.',
   },
   {
+    name: 'Sulfur Caves', where: 'Cave biome of yellow sulfur and red cinnabar, with spikes and bubbling sulfur pools.',
+    highlights: [
+      { item: 'Potent sulfur (sulfur cubes, spike cores)', odds: 'common' },
+      { item: 'Music disc "Bounce" — mineshaft carts down here', odds: 'rare' },
+      { item: 'Sulfur + cinnabar building sets', odds: 'usually' },
+    ],
+    note: 'Cave spiders spawn here naturally — the first place outside a spawner they ever have. Bring milk.',
+  },
+  {
+    name: 'Abandoned Camp (upcoming)', where: 'Coming with the dappled forest drop; generates across 17 biomes.',
+    highlights: [
+      { item: 'Explorer maps (8 biome + 4 structure)', odds: 'usually' },
+      { item: 'Hidden oxidized copper chest', odds: 'uncommon' },
+    ],
+    note: 'Not in the game yet — listed so you know what to look for the day the drop lands.',
+  },
+  {
     name: 'Village', where: 'Chests in houses vary by building: weaponsmith, toolsmith, temple, etc.',
     highlights: [
       { item: 'Obsidian + diamond (weaponsmith)', odds: 'uncommon' },
@@ -195,6 +212,7 @@ export const MOBS = [
   { mob: 'Husk', drops: ['rotten flesh'], rare: ['iron ingot'], xp: 5 },
   { mob: 'Stray', drops: ['bones', 'arrows'], rare: ['arrow of slowness — only source'], xp: 5 },
   { mob: 'Slime', drops: ['slimeballs (small ones)'], rare: [], xp: '1–4 per size' },
+  { mob: 'Sulfur Cube', drops: ['potent sulfur'], rare: [], xp: '1–4 per size' },
   { mob: 'Magma Cube', drops: ['magma cream (small ones)'], rare: [], xp: '1–4 per size' },
   { mob: 'Blaze', drops: ['blaze rod'], rare: [], xp: 10 },
   { mob: 'Ghast', drops: ['gunpowder', 'ghast tear'], rare: [], xp: 5 },

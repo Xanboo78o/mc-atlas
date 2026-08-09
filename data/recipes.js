@@ -10,7 +10,7 @@ export const RECIPES = [
   // ───────────── tools ─────────────
   { id: 'pickaxe', name: 'Pickaxe', cat: 'Tools', out: 'pickaxe', count: 1,
     grid: [['material','material','material'],[null,'stick',null],[null,'stick',null]],
-    note: 'Material = planks, cobble, iron, gold or diamond. Netherite comes from upgrading diamond at a smithing table.',
+    note: 'Material = planks, cobble, copper, iron, gold or diamond. Copper sits between stone and iron: stone damage, better durability, mines faster. Netherite comes from upgrading diamond at a smithing table.',
     alias: ['pick'] },
   { id: 'axe', name: 'Axe', cat: 'Tools', out: 'axe', count: 1,
     grid: [['material','material',null],['material','stick',null],[null,'stick',null]],
@@ -50,7 +50,7 @@ export const RECIPES = [
     note: 'Blue flame. Piglins hate it, and soul fire scares hoglins.' },
   { id: 'lantern', name: 'Lantern', cat: 'Tools', out: 'lantern', count: 1,
     grid: [['nugget','nugget','nugget'],['nugget','torch','nugget'],['nugget','nugget','nugget']],
-    note: 'Iron nuggets. Soul torch in the middle makes a soul lantern.' },
+    note: 'Iron nuggets. Soul torch in the middle makes a soul lantern; a copper torch in 8 COPPER nuggets makes a copper lantern.' },
   { id: 'campfire', name: 'Campfire', cat: 'Tools', out: 'campfire', count: 1,
     grid: [[null,'stick',null],['stick','coal','stick'],['log','log','log']],
     note: 'Cooks 4 foods at once with no fuel, forever. Soul soil variant for the blue one.' },
@@ -76,7 +76,7 @@ export const RECIPES = [
     grid: [['planks','iron','planks'],['planks','planks','planks'],[null,'planks',null]] },
   { id: 'helmet', name: 'Helmet', cat: 'Combat', out: 'helmet', count: 1,
     grid: [['material','material','material'],['material',null,'material']],
-    note: 'Material = leather, iron, gold or diamond. A turtle helmet is 5 scutes instead — it grants water breathing.' },
+    note: 'Material = leather, copper, iron, gold or diamond. Copper armor lands between leather and gold — a real early-game upgrade straight off your first copper haul. Turtle helmet is 5 scutes instead: water breathing.' },
   { id: 'chestplate', name: 'Chestplate', cat: 'Combat', out: 'chestplate', count: 1,
     grid: [['material',null,'material'],['material','material','material'],['material','material','material']] },
   { id: 'leggings', name: 'Leggings', cat: 'Combat', out: 'leggings', count: 1,
@@ -86,12 +86,20 @@ export const RECIPES = [
   { id: 'mace', name: 'Mace', cat: 'Combat', out: 'mace', count: 1,
     grid: [[null,'heavy core',null],[null,'breeze rod',null]],
     note: 'Heavy core: ominous vaults in trial chambers. Fall damage becomes your weapon.' },
+  { id: 'spear', name: 'Spear', cat: 'Combat', out: 'spear', count: 1,
+    grid: [[null,null,'material'],[null,'stick',null],['stick',null,null]],
+    note: 'Diagonal, like a real spear. Every tier from wood to netherite, copper included. Hold to charge a dash attack; the Lunge enchant is spear-only. Zombies sometimes carry iron ones, piglins gold.',
+    alias: ['lunge'] },
   { id: 'firework_rocket', name: 'Firework Rocket', cat: 'Combat', out: 'rocket', count: 3, shapeless: true,
     grid: [['paper','gunpowder','gunpowder']],
     note: 'More gunpowder = more elytra thrust (1–3). Add a firework star for a boom you will regret mid-flight.' },
   { id: 'wind_charge', name: 'Wind Charge', cat: 'Combat', out: 'wind charge', count: 4, shapeless: true,
     grid: [['breeze rod']],
     note: 'Throwable knockback burst — also launches YOU if you aim down and jump.' },
+
+  { id: 'copper_torch', name: 'Copper Torch', cat: 'Tools', out: 'copper torch', count: 4,
+    grid: [['coal'],['copper nugget'],['stick']],
+    note: 'Green flame, dimmer than a normal torch — mood lighting that still stops spawns close-up.' },
 
   // ───────────── redstone ─────────────
   { id: 'piston', name: 'Piston', cat: 'Redstone', out: 'piston', count: 1,
@@ -217,6 +225,9 @@ export const RECIPES = [
   { id: 'ender_chest', name: 'Ender Chest', cat: 'Utility', out: 'ender chest', count: 1,
     grid: [['obsidian','obsidian','obsidian'],['obsidian','eye of ender','obsidian'],['obsidian','obsidian','obsidian']],
     note: 'Same inventory from every ender chest, private to you. Put your valuables in before ANY dangerous trip.' },
+  { id: 'copper_chest', name: 'Copper Chest', cat: 'Utility', out: 'copper chest', count: 1,
+    grid: [['copper','copper','copper'],['copper','chest','copper'],['copper','copper','copper']],
+    note: 'The copper golem picks items out of these and sorts them into your normal chests. Oxidizes; wax it to keep the shine.' },
   { id: 'shulker_box', name: 'Shulker Box', cat: 'Utility', out: 'shulker box', count: 1,
     grid: [['shulker shell'],['chest'],['shulker shell']],
     note: 'Keeps its items when broken. The single biggest storage upgrade in the game.' },
@@ -385,6 +396,10 @@ export const RECIPES = [
     note: 'Mud + wheat = packed mud; 2×2 packed mud = mud bricks. Water bottle on dirt makes mud.' },
   { id: 'chain', name: 'Chain', cat: 'Building', out: 'chain', count: 1,
     grid: [['nugget'],['iron'],['nugget']] },
+
+  { id: 'potent_sulfur', name: 'Potent Sulfur', cat: 'Building', out: 'potent sulfur', count: 1,
+    grid: [['sulfur','sulfur','sulfur'],['sulfur','sulfur','sulfur'],['sulfur','sulfur','sulfur']],
+    note: 'Also drops from sulfur cubes. Underwater it vents nausea gas; on a magma block it builds an erupting geyser — see Sulfur in the Blocks tab.' },
 
   // ───────────── smelting ─────────────
   { id: 'sm_glass', name: 'Glass', cat: 'Smelting', type: 'smelt', in: 'sand', out: 'glass' },

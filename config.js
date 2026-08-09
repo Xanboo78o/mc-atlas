@@ -85,6 +85,9 @@ export const BIOMES = [
   { key: 'windswept_hills',          label: 'Windswept Hills',           color: '#606060', group: 'Overworld' },
   { key: 'windswept_savanna',        label: 'Windswept Savanna',         color: '#e5da87', group: 'Overworld' },
   { key: 'wooded_badlands',          label: 'Wooded Badlands',           color: '#b09765', group: 'Overworld' },
+  { key: 'sulfur_caves',             label: 'Sulfur Caves',              color: '#d4c22e', group: 'Overworld' },
+  // fall 2026 drop — experimental in Bedrock 26.40, full release ~26.50
+  { key: 'dappled_forest',           label: 'Dappled Forest (upcoming)', color: '#d97b2e', group: 'Overworld' },
 
   // ── Nether ──
   { key: 'nether_wastes',     label: 'Nether Wastes',     color: '#bf3b3b', group: 'Nether' },
@@ -196,6 +199,8 @@ export const BIOME_TAGS = {
   windswept_hills:          ['steep', 'grass'],
   windswept_savanna:        ['grass', 'dry', 'steep'],
   wooded_badlands:          ['sand', 'dry', 'trees', 'steep'],
+  sulfur_caves:             ['cave', 'water'],       // sulfur pools and springs
+  dappled_forest:           ['trees', 'grass', 'mushroom'],
 
   // Nether
   nether_wastes:     ['nether', 'lava'],

@@ -356,8 +356,8 @@ button, input, textarea { font: inherit; color: inherit; }
 .info-tabs::-webkit-scrollbar { display: none; }
 .info-tabs button {
   border: 0; background: transparent; color: var(--ink-dim);
-  padding: 6px 8px; border-radius: 999px; font-size: 11.5px; cursor: pointer;
-  white-space: nowrap; flex: 1;
+  padding: 6px 9px; border-radius: 999px; font-size: 11.5px; cursor: pointer;
+  white-space: nowrap; flex: 0 0 auto;
 }
 .info-tabs button.on { background: var(--panel-2); color: var(--ink); }
 
@@ -399,6 +399,8 @@ button, input, textarea { font: inherit; color: inherit; }
 .chip-good { color: #3ed167; border-color: #3ed16755; }
 .chip-warn { color: #fbbf24; border-color: #fbbf2455; }
 .chip-best { color: var(--accent); border-color: var(--accent); }
+.chip-java { color: #f87171; border-color: #f8717155; }
+.card-note.tip { color: var(--accent); }
 
 .info-list { margin: 8px 0 0; padding-left: 18px; font-size: 13px; line-height: 1.55; }
 .info-list li { margin-bottom: 4px; }

@@ -7,6 +7,7 @@ import { FARMS } from '../data/farms.js'
 import { STRUCTURES, MOBS } from '../data/loot.js'
 import { ORES } from '../data/ores.js'
 import { BLOCKS } from '../data/blocks.js'
+import { ENCHANTS, ENCHANT_BASICS } from '../data/enchants.js'
 
 let failures = 0
 const bad = msg => { failures++; console.error('✗', msg) }
@@ -110,6 +111,22 @@ for (const b of BLOCKS) {
   }
 }
 
+// ── enchantments ──
+dupes(ENCHANTS.map(e => e.id), 'enchant id')
+dupes(ENCHANTS.map(e => e.name), 'enchant name')
+const ROMAN = ['I', 'II', 'III', 'IV', 'V']
+const ENCH_CATS = new Set(['Universal', 'Armor', 'Melee', 'Mace & Spear', 'Tools', 'Ranged', 'Trident', 'Curses'])
+for (const e of ENCHANTS) {
+  if (!ENCH_CATS.has(e.cat)) bad(`enchant ${e.id}: unknown category '${e.cat}' (won't render)`)
+  if (!ROMAN.includes(e.max)) bad(`enchant ${e.id}: max '${e.max}' is not I–V`)
+  if (!e.items || !e.what || !e.tip) bad(`enchant ${e.id}: needs items/what/tip`)
+  // a treasure enchant is useless without saying where it comes from
+  if (e.treasure && !e.source) bad(`enchant ${e.id}: treasure but no source`)
+}
+for (const k of ['table', 'anvil', 'grindstone', 'villagers']) {
+  if (!ENCHANT_BASICS[k]?.length) bad(`ENCHANT_BASICS.${k} missing`)
+}
+
 // ── summary ──
 const counts = {
   recipes: RECIPES.length,
@@ -117,6 +134,7 @@ const counts = {
   structures: STRUCTURES.length,
   mobs: MOBS.length,
   ores: ORES.length,
+  enchants: ENCHANTS.length,
   blockFamilies: BLOCKS.length,
   blockNames: nameCount,
 }

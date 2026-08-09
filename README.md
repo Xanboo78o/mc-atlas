@@ -109,9 +109,14 @@ Tap the 🔓 badge to lock again.
 The ✦ button opens a full-screen reference library — five tabs, all searchable,
 all static data shipped with the site (no database involved):
 
-- **Recipes** — ~110 crafting recipes drawn as real crafting grids, plus
-  smelting and a full brewing chart. Family recipes ("any planks", "any
-  material") cover every variant in one card.
+- **Recipes** — crafting recipes drawn as real crafting grids, plus smelting
+  and a full brewing chart. Family recipes ("any planks", "any material")
+  cover every variant in one card.
+- **Enchants** — all 43 enchantments with max level, what they go on, what
+  they actually do, what they refuse to combine with, and where treasure
+  enchants come from. Plus how the table, anvils, the grindstone and librarian
+  trading really work. Java-only enchantments are labelled as such, since this
+  is a Bedrock server.
 - **Farms** — layer-by-layer build guides for Bedrock-correct farm designs
   (mob XP tower, iron farm, creeper farm). Tap through the layers; the
   materials list is computed by counting the blocks in the diagrams, so it
@@ -124,6 +129,11 @@ all static data shipped with the site (no database involved):
   it, including the unconventional ones (frogs making froglights, bed-mining
   ancient debris, the dripstone lava loop). Organised as ~70 families so the
   whole registry stays searchable: type any block name and land somewhere.
+
+It tracks current Minecraft: copper armor, tools, golems and chests from The
+Copper Age; sulfur, cinnabar and geysers from Chaos Cubed; the spear and its
+Lunge enchantment. The dappled forest set is in there too, clearly marked as
+not-out-yet so nobody hunts for blocks that don't exist.
 
 Data lives in `data/*.js` as plain modules. `node scripts/validate-data.mjs`
 checks all of it — ragged farm grids, legend chars that don't exist, duplicate

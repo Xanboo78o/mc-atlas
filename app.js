@@ -1,5 +1,8 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { SUPABASE_URL, SUPABASE_ANON_KEY, SERVER_NAME, KINDS, DIMENSIONS, MAP_LAYERS } from './config.js'
+import {
+  SUPABASE_URL, SUPABASE_ANON_KEY, SERVER_NAME,
+  KINDS, DIMENSIONS, MAP_LAYERS, BIOMES, SLIME_COLOR,
+} from './config.js'
 
 const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 const $ = id => document.getElementById(id)
@@ -9,12 +12,17 @@ const $ = id => document.getElementById(id)
 const store = {
   pins: [],
   borders: [],
+  chunks: [],
   dimension: 'overworld',
   hidden: new Set(),          // pin kinds toggled off
   selected: null,             // pin currently open in the detail sheet
   editingPin: null,
   editingBorder: null,
+  editingChunk: null,
   draft: null,                // border being drawn: array of [x, z]
+  measure: [],                // measuring line: up to two [x, z] points
+  mode: 'normal',             // normal | border | measure | chunk
+  owner: false,               // owner mode unlocked → secret pins visible
 }
 
 // world coords at the centre of the screen, and pixels-per-block
@@ -26,9 +34,24 @@ const remember = {
   set author (v) { localStorage.setItem('atlas.author', v) },
   get key () { return localStorage.getItem('atlas.key') || '' },
   set key (v) { localStorage.setItem('atlas.key', v) },
+  get ownerKey () { return localStorage.getItem('atlas.ownerKey') || '' },
+  set ownerKey (v) { localStorage.setItem('atlas.ownerKey', v) },
 }
 
 const kindOf = k => KINDS.find(x => x.key === k) || KINDS[1]
+const biomeOf = k => BIOMES.find(b => b.key === k)
+
+/* ══════════════════════ dimension maths ══════════════════════
+
+   One block in the nether is eight in the overworld. Everything that
+   translates coordinates or distances between dimensions goes through here.  */
+
+const NETHER_RATIO = 8
+const toNether = n => Math.round(n / NETHER_RATIO)
+const toOverworld = n => Math.round(n * NETHER_RATIO)
+
+// The End has no such relationship, so it's treated as its own flat space.
+const hasNetherTwin = dim => dim === 'overworld' || dim === 'nether'
 
 /* ══════════════════════ coordinate parsing ══════════════════════
 
@@ -84,9 +107,12 @@ function render () {
   }
 
   drawLayers()
+  drawChunks()
   drawGrid(bounds, w, h)
+  drawChunkGrid(bounds, w, h)
   drawBorders()
   drawDraft()
+  drawMeasure()
   drawPins()
 
   $('coordReadout').textContent = `${Math.round(view.cx)}, ${Math.round(view.cz)}`
@@ -129,6 +155,94 @@ function drawGrid (b, w, h) {
   const o = toScreen(0, 0)
   ctx.strokeStyle = '#4b5a6d'
   ctx.beginPath(); ctx.arc(o.sx, o.sy, 5, 0, Math.PI * 2); ctx.stroke()
+}
+
+/* ── chunks ──
+   A chunk is 16×16 blocks. Its colour is the first biome tagged on it; slime
+   chunks get a hatch on top so the two facts stay independently readable. */
+
+const CHUNK = 16
+
+function drawChunks () {
+  const size = CHUNK * view.scale
+  if (size < 2) return                       // too small to mean anything
+
+  for (const c of store.chunks) {
+    if (c.dimension !== store.dimension) continue
+    const { sx, sy } = toScreen(c.cx * CHUNK, c.cz * CHUNK)
+    if (sx < -size || sy < -size || sx > cv.clientWidth || sy > cv.clientHeight) continue
+
+    const biome = biomeOf(c.biomes?.[0])
+    if (biome) {
+      ctx.fillStyle = biome.color + (c.biomes.length > 1 ? '66' : '88')
+      ctx.fillRect(sx, sy, size, size)
+    }
+
+    if (c.slime) {
+      ctx.save()
+      ctx.beginPath(); ctx.rect(sx, sy, size, size); ctx.clip()
+      ctx.strokeStyle = SLIME_COLOR + 'cc'
+      ctx.lineWidth = Math.max(1, size / 14)
+      const gap = Math.max(4, size / 4)
+      for (let d = -size; d < size * 2; d += gap) {
+        ctx.beginPath()
+        ctx.moveTo(sx + d, sy)
+        ctx.lineTo(sx + d - size, sy + size)
+        ctx.stroke()
+      }
+      ctx.restore()
+      ctx.strokeStyle = SLIME_COLOR
+      ctx.lineWidth = 1
+      ctx.strokeRect(sx + .5, sy + .5, size - 1, size - 1)
+    }
+  }
+}
+
+// Only drawn while tagging, so the normal map never looks like graph paper.
+function drawChunkGrid (b, w, h) {
+  if (store.mode !== 'chunk') return
+  const size = CHUNK * view.scale
+  if (size < 6) return
+
+  ctx.strokeStyle = '#2f3b48'
+  ctx.lineWidth = 1
+  for (let x = Math.ceil(b.left / CHUNK) * CHUNK; x <= b.right; x += CHUNK) {
+    const { sx } = toScreen(x, 0)
+    ctx.beginPath(); ctx.moveTo(sx + .5, 0); ctx.lineTo(sx + .5, h); ctx.stroke()
+  }
+  for (let z = Math.ceil(b.top / CHUNK) * CHUNK; z <= b.bot; z += CHUNK) {
+    const { sy } = toScreen(0, z)
+    ctx.beginPath(); ctx.moveTo(0, sy + .5); ctx.lineTo(w, sy + .5); ctx.stroke()
+  }
+}
+
+/* ── measuring line ── */
+
+function drawMeasure () {
+  const pts = store.measure
+  if (!pts.length) return
+
+  if (pts.length === 2) {
+    const a = toScreen(pts[0][0], pts[0][1])
+    const b = toScreen(pts[1][0], pts[1][1])
+    ctx.strokeStyle = '#fbbf24'
+    ctx.lineWidth = 2
+    ctx.setLineDash([7, 5])
+    ctx.beginPath(); ctx.moveTo(a.sx, a.sy); ctx.lineTo(b.sx, b.sy); ctx.stroke()
+    ctx.setLineDash([])
+  }
+
+  pts.forEach(([x, z], i) => {
+    const { sx, sy } = toScreen(x, z)
+    ctx.fillStyle = '#fbbf24'
+    ctx.beginPath(); ctx.arc(sx, sy, 6, 0, Math.PI * 2); ctx.fill()
+    ctx.strokeStyle = '#0d1117'; ctx.lineWidth = 2; ctx.stroke()
+    ctx.fillStyle = '#0d1117'
+    ctx.font = '700 10px ui-sans-serif, system-ui, sans-serif'
+    ctx.textAlign = 'center'
+    ctx.fillText(i ? 'B' : 'A', sx, sy + 3.5)
+    ctx.textAlign = 'left'
+  })
 }
 
 function polyPath (points) {
@@ -198,6 +312,13 @@ function drawPins () {
     ctx.beginPath(); ctx.arc(sx, sy, on ? 8 : 6, 0, Math.PI * 2)
     ctx.fillStyle = k.color; ctx.fill()
     ctx.lineWidth = 2; ctx.strokeStyle = '#0d1117'; ctx.stroke()
+
+    // secret pins wear a dashed halo so they're never confused with public ones
+    if (p.secret) {
+      ctx.beginPath(); ctx.arc(sx, sy, 11, 0, Math.PI * 2)
+      ctx.strokeStyle = k.color; ctx.lineWidth = 1.5
+      ctx.setLineDash([3, 3]); ctx.stroke(); ctx.setLineDash([])
+    }
 
     if (on) {
       ctx.beginPath(); ctx.arc(sx, sy, 14, 0, Math.PI * 2)
@@ -316,12 +437,25 @@ function tap (e) {
   const r = cv.getBoundingClientRect()
   const sx = e.clientX - r.left, sy = e.clientY - r.top
 
-  if (store.draft) {
+  if (store.mode === 'border' && store.draft) {
     const { x, z } = toWorld(sx, sy)
     store.draft.push([Math.round(x), Math.round(z)])
     $('drawInfo').textContent = `${store.draft.length} corner${store.draft.length === 1 ? '' : 's'} placed.`
     $('drawDone').disabled = store.draft.length < 3
     return render()
+  }
+
+  if (store.mode === 'measure') {
+    const { x, z } = toWorld(sx, sy)
+    if (store.measure.length >= 2) store.measure = []
+    store.measure.push([Math.round(x), Math.round(z)])
+    showMeasure()
+    return render()
+  }
+
+  if (store.mode === 'chunk') {
+    const { x, z } = toWorld(sx, sy)
+    return openChunk(Math.floor(x / CHUNK), Math.floor(z / CHUNK))
   }
 
   const pin = pinAt(sx, sy)
@@ -349,7 +483,7 @@ function flyTo (x, z, scale) {
 
 /* ══════════════════════ sheets ══════════════════════ */
 
-const SHEETS = ['detail', 'editor', 'bEditor', 'keyPad', 'searchPane']
+const SHEETS = ['detail', 'editor', 'bEditor', 'cEditor', 'keyPad', 'searchPane']
 
 function openSheet (id) {
   SHEETS.forEach(s => $(s).classList.toggle('hidden', s !== id))
@@ -377,12 +511,17 @@ function toast (msg) {
 /* ══════════════════════ write access ══════════════════════ */
 
 let keyResolve = null
+let ownerPrompt = false
 
 /* Returns the server key, prompting for it the first time and remembering it
    after. Resolves to null if the person backs out. */
 function requireKey () {
   if (remember.key) return Promise.resolve(remember.key)
+  ownerPrompt = false
   openSheet('keyPad')
+  $('kHeading').textContent = 'Server key'
+  $('kBlurb').textContent = 'Anyone can read the atlas. Only the server can write to it. ' +
+    "Ask whoever runs it for the key — you'll only type this once."
   $('kInput').value = ''
   $('kErr').classList.add('hidden')
   setTimeout(() => $('kInput').focus(), 80)
@@ -393,10 +532,20 @@ $('kGo').onclick = async () => {
   const pass = $('kInput').value.trim()
   if (!pass) return
   $('kGo').disabled = true
+
+  if (ownerPrompt) {
+    const ok = await unlockOwner(pass)
+    $('kGo').disabled = false
+    if (!ok) { $('kErr').textContent = "That isn't the owner key."; $('kErr').classList.remove('hidden'); return }
+    ownerPrompt = false
+    return closeSheets()
+  }
+
   const { data, error } = await sb.rpc('atlas_verify', { pass })
   $('kGo').disabled = false
 
   if (error || !data) {
+    $('kErr').textContent = "That key isn't right."
     $('kErr').classList.remove('hidden')
     return
   }
@@ -406,7 +555,11 @@ $('kGo').onclick = async () => {
 }
 
 $('kInput').addEventListener('keydown', e => { if (e.key === 'Enter') $('kGo').click() })
-$('kCancel').onclick = () => { closeSheets(); keyResolve?.(null); keyResolve = null }
+$('kCancel').onclick = () => {
+  ownerPrompt = false
+  closeSheets()
+  keyResolve?.(null); keyResolve = null
+}
 
 /* ══════════════════════ pin detail ══════════════════════ */
 
@@ -416,7 +569,8 @@ function openPin (p) {
 
   $('dGlyph').textContent = k.glyph
   $('dGlyph').style.color = k.color
-  $('dTitle').textContent = p.title
+  $('dTitle').innerHTML = escapeHtml(p.title) +
+    (p.secret ? '<span class="secret-tag">secret</span>' : '')
   $('dMeta').textContent = `${k.label} · added by ${p.author} · ${when(p.created_at)}`
   $('dCoords').textContent = p.y == null ? `${p.x}  ${p.z}` : `${p.x}  ${p.y}  ${p.z}`
   $('dBody').textContent = p.body || ''
@@ -447,7 +601,8 @@ $('dEdit').onclick = () => store.selected && openEditor(store.selected)
 $('dDelete').onclick = async () => {
   const p = store.selected
   if (!p || !confirm(`Delete "${p.title}"? This can't be undone.`)) return
-  const pass = await requireKey(); if (!pass) return
+  const pass = p.secret ? remember.ownerKey : await requireKey()
+  if (!pass) return
 
   const { error } = await sb.rpc('atlas_delete_pin', { pass, p_id: p.id })
   if (error) return toast(errText(error))
@@ -476,6 +631,8 @@ function openEditor (pin = null) {
     ? (pin.y == null ? `${pin.x} ${pin.z}` : `${pin.x} ${pin.y} ${pin.z}`)
     : ''
   $('eMore').open = !!pin?.body
+  $('eSecret').checked = !!pin?.secret
+  $('eSecretRow').classList.toggle('hidden', !store.owner)
   pickKind(pin?.kind || 'base')
 
   openSheet('editor')
@@ -521,7 +678,12 @@ $('eSave').onclick = async () => {
   if (!title) return toast('Give it a name')
   if (!author) return toast('Put your name in')
 
-  const pass = await requireKey(); if (!pass) return
+  const secret = store.owner && $('eSecret').checked
+  // Anything secret — becoming secret, or already secret — needs the owner key.
+  const needsOwner = secret || store.editingPin?.secret
+  const pass = needsOwner ? remember.ownerKey : await requireKey()
+  if (!pass) return
+
   remember.author = author
   $('eSave').disabled = true
 
@@ -534,6 +696,7 @@ $('eSave').onclick = async () => {
     p_kind: chosenKind,
     p_author: author,
     p_body: $('eBody').value.trim(),
+    p_secret: secret,
   })
   $('eSave').disabled = false
   if (error) return toast(errText(error))
@@ -565,26 +728,43 @@ $('bColors').onclick = e => {
 }
 $('bColors').firstElementChild.classList.add('on')
 
-$('borderBtn').onclick = () => {
-  if (store.draft) return stopDrawing()
-  closeSheets()
-  store.draft = []
-  store.editingBorder = null
-  $('borderBtn').classList.add('on')
-  $('drawBar').classList.remove('hidden')
-  $('drawInfo').textContent = 'Tap the map to place corners — 3 or more.'
-  $('drawDone').disabled = true
-  cv.classList.add('drawing')
+/* ══════════════════════ map modes ══════════════════════ */
+
+function setMode (mode) {
+  store.mode = mode
+  store.draft = mode === 'border' ? [] : null
+  if (mode !== 'measure') store.measure = []
+  if (mode === 'border') store.editingBorder = null
+
+  $('borderBtn').classList.toggle('on', mode === 'border')
+  $('measureBtn').classList.toggle('on', mode === 'measure')
+  $('chunkBtn').classList.toggle('on', mode === 'chunk')
+
+  $('drawBar').classList.toggle('hidden', mode !== 'border')
+  $('measureBar').classList.toggle('hidden', mode !== 'measure')
+  $('chunkBar').classList.toggle('hidden', mode !== 'chunk')
+
+  cv.classList.toggle('drawing', mode !== 'normal')
+  // the mode bar occupies the same corner as the button stack
+  $('fabs').classList.toggle('stowed', mode !== 'normal')
+
+  if (mode === 'border') {
+    $('drawInfo').textContent = 'Tap the map to place corners — 3 or more.'
+    $('drawDone').disabled = true
+  }
+  if (mode === 'measure') showMeasure()
   render()
 }
 
-function stopDrawing () {
-  store.draft = null
-  $('borderBtn').classList.remove('on')
-  $('drawBar').classList.add('hidden')
-  cv.classList.remove('drawing')
-  render()
-}
+const stopDrawing = () => setMode('normal')
+const toggleMode = m => setMode(store.mode === m ? 'normal' : m)
+
+$('borderBtn').onclick = () => { closeSheets(); toggleMode('border') }
+$('measureBtn').onclick = () => { closeSheets(); toggleMode('measure') }
+$('chunkBtn').onclick = () => { closeSheets(); toggleMode('chunk') }
+$('measureDone').onclick = stopDrawing
+$('chunkDone').onclick = stopDrawing
+$('measureUndo').onclick = () => { store.measure.pop(); showMeasure(); render() }
 
 $('drawCancel').onclick = stopDrawing
 $('drawUndo').onclick = () => {
@@ -665,6 +845,207 @@ $('bDelete').onclick = async () => {
   toast('Border deleted')
 }
 
+/* ══════════════════════ the measuring line ══════════════════════
+
+   Plot a line in either dimension and read both ends in both dimensions at
+   once. Eight overworld blocks is one nether block, which is the whole reason
+   this tool needs to exist: a short walk in the nether is a very long one up
+   top, and nobody wants to do that division in their head mid-game.          */
+
+const pair = (a, b) => `${a}  ${b}`
+
+function showMeasure () {
+  const pts = store.measure
+  const out = $('measureOut'), hint = $('measureHint')
+
+  if (pts.length < 2) {
+    hint.textContent = pts.length ? 'Now tap point B.' : 'Tap two points on the map.'
+    hint.classList.remove('hidden')
+    out.classList.add('hidden')
+    return
+  }
+  hint.classList.add('hidden')
+  out.classList.remove('hidden')
+
+  const [a, b] = pts
+  const dist = Math.round(Math.hypot(b[0] - a[0], b[1] - a[1]))
+  const here = store.dimension
+
+  // Column A is always where you drew the line. Column B is its twin.
+  let headA, headB, conv
+  if (here === 'nether') {
+    headA = 'Nether'; headB = 'Overworld'; conv = toOverworld
+  } else if (here === 'overworld') {
+    headA = 'Overworld'; headB = 'Nether'; conv = toNether
+  } else {
+    headA = 'The End'; headB = '—'; conv = null
+  }
+
+  $('mHeadA').textContent = headA
+  $('mHeadB').textContent = headB
+  $('mStartA').textContent = pair(a[0], a[1])
+  $('mEndA').textContent = pair(b[0], b[1])
+  $('mDistA').textContent = `${dist} blocks`
+
+  if (conv) {
+    $('mStartB').textContent = pair(conv(a[0]), conv(a[1]))
+    $('mEndB').textContent = pair(conv(b[0]), conv(b[1]))
+    $('mDistB').textContent = `${conv(dist)} blocks`
+  } else {
+    // The End has no paired coordinate space.
+    $('mStartB').textContent = $('mEndB').textContent = $('mDistB').textContent = '—'
+  }
+}
+
+/* ══════════════════════ chunks ══════════════════════ */
+
+let chunkBiomes = new Set()
+
+function openChunk (cx, cz, dim = store.dimension) {
+  const existing = store.chunks.find(c => c.cx === cx && c.cz === cz && c.dimension === dim)
+  store.editingChunk = { cx, cz, dimension: dim, existing }
+
+  chunkBiomes = new Set(existing?.biomes || [])
+  $('cHeading').textContent = `Chunk ${cx}, ${cz}`
+  $('cRange').textContent =
+    `blocks ${cx * CHUNK} to ${cx * CHUNK + 15} × ${cz * CHUNK} to ${cz * CHUNK + 15}`
+  $('cSlime').checked = !!existing?.slime
+  $('cNote').value = existing?.note || ''
+  $('cAuthor').value = existing?.author || remember.author
+  $('cDelete').classList.toggle('hidden', !existing)
+  $('cBiomeSearch').value = ''
+  renderBiomes()
+
+  openSheet('cEditor')
+}
+
+function renderBiomes () {
+  const q = $('cBiomeSearch').value.trim().toLowerCase()
+  const hits = BIOMES.filter(b => !q || b.label.toLowerCase().includes(q) || b.key.includes(q))
+
+  if (!hits.length) {
+    $('cBiomeList').innerHTML = '<div class="none">No biome by that name.</div>'
+    return
+  }
+
+  let html = '', group = null
+  for (const b of hits) {
+    if (b.group !== group) { group = b.group; html += `<div class="group">${group}</div>` }
+    html += `<button type="button" data-b="${b.key}" class="${chunkBiomes.has(b.key) ? 'on' : ''}">
+      <span class="swatch" style="background:${b.color}"></span>${b.label}
+    </button>`
+  }
+  $('cBiomeList').innerHTML = html
+}
+
+$('cBiomeSearch').addEventListener('input', renderBiomes)
+$('cBiomeList').onclick = e => {
+  const b = e.target.closest('button'); if (!b) return
+  const k = b.dataset.b
+  chunkBiomes.has(k) ? chunkBiomes.delete(k) : chunkBiomes.add(k)
+  b.classList.toggle('on', chunkBiomes.has(k))
+}
+
+$('cCancel').onclick = () => { closeSheets(); if (store.mode === 'chunk') render() }
+
+$('cSave').onclick = async () => {
+  const c = store.editingChunk
+  const author = $('cAuthor').value.trim()
+  if (!c) return
+  if (!author) return toast('Put your name in')
+  if (!chunkBiomes.size && !$('cSlime').checked && !$('cNote').value.trim())
+    return toast('Pick a biome, or mark it as slime')
+
+  const pass = await requireKey(); if (!pass) return
+  remember.author = author
+  $('cSave').disabled = true
+
+  const { error } = await sb.rpc('atlas_save_chunk', {
+    pass,
+    c_cx: c.cx, c_cz: c.cz, c_dimension: c.dimension,
+    c_biomes: [...chunkBiomes],
+    c_slime: $('cSlime').checked,
+    c_note: $('cNote').value.trim(),
+    c_author: author,
+  })
+  $('cSave').disabled = false
+  if (error) return toast(errText(error))
+
+  await load()
+  closeSheets()
+  toast('Chunk saved')
+}
+
+$('cDelete').onclick = async () => {
+  const c = store.editingChunk
+  if (!c?.existing) return
+  const pass = await requireKey(); if (!pass) return
+  const { error } = await sb.rpc('atlas_delete_chunk', {
+    pass, c_cx: c.cx, c_cz: c.cz, c_dimension: c.dimension,
+  })
+  if (error) return toast(errText(error))
+  store.chunks = store.chunks.filter(x => x.id !== c.existing.id)
+  closeSheets()
+  toast('Chunk cleared')
+}
+
+/* ══════════════════════ owner mode ══════════════════════
+
+   Long-press the server name to unlock. Secret pins are filtered out by the
+   read policy itself, so locked visitors never receive them — hiding them in
+   the UI would not have been enough.                                          */
+
+let pressTimer
+const startPress = () => {
+  clearTimeout(pressTimer)
+  pressTimer = setTimeout(askOwner, 700)
+}
+const cancelPress = () => clearTimeout(pressTimer)
+
+$('brand').addEventListener('pointerdown', startPress)
+$('brand').addEventListener('pointerup', cancelPress)
+$('brand').addEventListener('pointerleave', cancelPress)
+$('brand').addEventListener('contextmenu', e => e.preventDefault())
+
+async function askOwner () {
+  if (store.owner) return
+  if (remember.ownerKey && await unlockOwner(remember.ownerKey)) return
+
+  ownerPrompt = true
+  openSheet('keyPad')
+  $('kHeading').textContent = 'Owner key'
+  $('kBlurb').textContent = 'Your personal key. Unlocks secret pins that nobody else can see.'
+  $('kInput').value = ''
+  $('kErr').classList.add('hidden')
+  setTimeout(() => $('kInput').focus(), 80)
+}
+
+async function unlockOwner (pass) {
+  const { data, error } = await sb.rpc('atlas_role', { pass })
+  if (error || data !== 'owner') return false
+  remember.ownerKey = pass
+  if (!remember.key) remember.key = pass      // owner key also grants normal writes
+  store.owner = true
+  $('ownerBadge').classList.remove('hidden')
+  $('eSecretRow').classList.remove('hidden')
+  await load()
+  toast('Owner mode — secret pins visible')
+  return true
+}
+
+function lockOwner () {
+  store.owner = false
+  localStorage.removeItem('atlas.ownerKey')
+  store.pins = store.pins.filter(p => !p.secret)
+  $('ownerBadge').classList.add('hidden')
+  $('eSecretRow').classList.add('hidden')
+  closeSheets()
+  render()
+  toast('Locked')
+}
+
+$('ownerBadge').onclick = lockOwner
+
 /* ══════════════════════ dimensions & filters ══════════════════════ */
 
 $('dimSwitch').innerHTML = DIMENSIONS.map(d =>
@@ -740,13 +1121,22 @@ const escapeHtml = s => String(s).replace(/[&<>"']/g,
 /* ══════════════════════ data ══════════════════════ */
 
 async function load () {
-  const [pins, borders] = await Promise.all([
+  const [pins, borders, chunks] = await Promise.all([
     sb.from('pins').select('*').order('created_at'),
     sb.from('borders').select('*').order('created_at'),
+    sb.from('chunks').select('*'),
   ])
   if (pins.error) { toast('Could not reach the atlas'); return }
   store.pins = pins.data || []
   store.borders = borders.data || []
+  store.chunks = chunks.data || []
+
+  // Secret pins are excluded by the read policy itself, so they can only
+  // arrive through the owner-key RPC. Nothing to filter client-side.
+  if (store.owner && remember.ownerKey) {
+    const { data } = await sb.rpc('atlas_secret_pins', { pass: remember.ownerKey })
+    if (data?.length) store.pins = store.pins.concat(data)
+  }
   render()
 }
 
@@ -755,6 +1145,7 @@ async function load () {
 sb.channel('atlas')
   .on('postgres_changes', { event: '*', schema: 'public', table: 'pins' }, load)
   .on('postgres_changes', { event: '*', schema: 'public', table: 'borders' }, load)
+  .on('postgres_changes', { event: '*', schema: 'public', table: 'chunks' }, load)
   .subscribe()
 
 document.addEventListener('visibilitychange', () => { if (!document.hidden) load() })
@@ -782,6 +1173,10 @@ function boot () {
   window.addEventListener('resize', resize)
   resize()
   load()
+
+  // Owner mode survives a refresh — the key is re-checked against the server,
+  // never trusted from storage alone.
+  if (remember.ownerKey) unlockOwner(remember.ownerKey)
 }
 
 document.addEventListener('keydown', e => { if (e.key === 'Escape') { stopDrawing(); closeSheets() } })

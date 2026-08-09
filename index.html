@@ -13,10 +13,12 @@
 <canvas id="map"></canvas>
 
 <header id="topbar">
-  <div class="brand">
+  <!-- long-press the name to unlock owner mode -->
+  <div class="brand" id="brand">
     <span class="brand-name" id="brandName">ATLAS</span>
     <span class="brand-sub" id="coordReadout">0, 0</span>
   </div>
+  <button class="icon-btn owner-badge hidden" id="ownerBadge" title="Owner mode — tap to lock">🔓</button>
   <div class="spacer"></div>
   <div class="dims" id="dimSwitch"></div>
   <button class="icon-btn" id="searchBtn" title="Search" aria-label="Search">⌕</button>
@@ -26,6 +28,8 @@
 
 <div id="fabs">
   <button class="fab fab-ghost" id="homeBtn" title="Back to spawn" aria-label="Back to spawn">◎</button>
+  <button class="fab fab-ghost" id="measureBtn" title="Measure across dimensions" aria-label="Measure">⇿</button>
+  <button class="fab fab-ghost" id="chunkBtn" title="Tag chunks" aria-label="Tag chunks">▦</button>
   <button class="fab fab-ghost" id="borderBtn" title="Draw a border" aria-label="Draw a border">⬡</button>
   <button class="fab fab-main" id="addBtn" title="Add a pin" aria-label="Add a pin">+</button>
 </div>
@@ -36,6 +40,29 @@
   <button class="btn btn-ghost" id="drawUndo">Undo</button>
   <button class="btn btn-ghost" id="drawCancel">Cancel</button>
   <button class="btn btn-go" id="drawDone">Done</button>
+</div>
+
+<!-- measure mode -->
+<div id="measureBar" class="drawbar measurebar hidden">
+  <div class="measure-body">
+    <div id="measureHint">Tap two points on the map.</div>
+    <table id="measureOut" class="measure-table hidden">
+      <tr><th></th><th id="mHeadA">Overworld</th><th id="mHeadB">Nether</th></tr>
+      <tr><td>start</td><td id="mStartA">—</td><td id="mStartB">—</td></tr>
+      <tr><td>end</td><td id="mEndA">—</td><td id="mEndB">—</td></tr>
+      <tr><td>walk</td><td id="mDistA">—</td><td id="mDistB">—</td></tr>
+    </table>
+  </div>
+  <div class="measure-btns">
+    <button class="btn btn-ghost" id="measureUndo">Undo</button>
+    <button class="btn btn-ghost" id="measureDone">Close</button>
+  </div>
+</div>
+
+<!-- chunk mode -->
+<div id="chunkBar" class="drawbar hidden">
+  <span id="chunkInfo">Tap a chunk to tag it.</span>
+  <button class="btn btn-ghost" id="chunkDone">Close</button>
 </div>
 
 <!-- ───────────────── sheets ───────────────── -->
@@ -95,9 +122,54 @@
     <input id="eAuthor" type="text" autocomplete="off" placeholder="who are you">
   </label>
 
+  <label class="toggle hidden" id="eSecretRow">
+    <input type="checkbox" id="eSecret">
+    <span>
+      <strong>Secret pin</strong>
+      <small>Only you can see this. It never leaves the database for anyone else.</small>
+    </span>
+  </label>
+
   <div class="sheet-actions">
     <button class="btn btn-ghost" id="eCancel">Cancel</button>
     <button class="btn btn-go" id="eSave">Save pin</button>
+  </div>
+</section>
+
+<!-- chunk editor -->
+<section id="cEditor" class="sheet hidden">
+  <div class="grabber"></div>
+  <h2 id="cHeading">Chunk</h2>
+  <p class="muted" id="cRange">—</p>
+
+  <label class="toggle">
+    <input type="checkbox" id="cSlime">
+    <span>
+      <strong>Slime chunk</strong>
+      <small>Slimes spawn below Y-40 here regardless of biome.</small>
+    </span>
+  </label>
+
+  <div class="field">
+    <span>Majority biome — pick as many as apply</span>
+    <input id="cBiomeSearch" type="search" autocomplete="off" placeholder="search all biomes…">
+    <div id="cBiomeList" class="biomelist"></div>
+  </div>
+
+  <label class="field">
+    <span>Note</span>
+    <input id="cNote" type="text" autocomplete="off" placeholder="optional">
+  </label>
+
+  <label class="field">
+    <span>Your name</span>
+    <input id="cAuthor" type="text" autocomplete="off" placeholder="who are you">
+  </label>
+
+  <div class="sheet-actions">
+    <button class="btn btn-ghost" id="cCancel">Cancel</button>
+    <button class="btn btn-danger hidden" id="cDelete">Clear</button>
+    <button class="btn btn-go" id="cSave">Save chunk</button>
   </div>
 </section>
 
@@ -144,8 +216,8 @@
 <!-- passphrase -->
 <section id="keyPad" class="sheet hidden">
   <div class="grabber"></div>
-  <h2>Server key</h2>
-  <p class="muted">Anyone can read the atlas. Only the server can write to it.
+  <h2 id="kHeading">Server key</h2>
+  <p class="muted" id="kBlurb">Anyone can read the atlas. Only the server can write to it.
      Ask whoever runs it for the key — you'll only type this once.</p>
   <label class="field">
     <span>Key</span>

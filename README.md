@@ -38,27 +38,71 @@ Your name and the server key are remembered after the first time, so every pin
 after the first takes about ten seconds. This is the whole reason the thing
 survives past week one.
 
+## Measuring across dimensions
+
+Tap the `⇿` button and put down two points. You get both ends and the walking
+distance in **both dimensions at once**, because one block in the nether is
+eight in the overworld and nobody wants to do that division in their head while
+their friends are waiting at a portal.
+
+```
+              OVERWORLD        NETHER
+    start     -146  -115       -18  -14
+    end        63    122         8   15
+    walk      316 blocks       40 blocks
+```
+
+Draw the line in the nether instead and the columns swap — it converts whichever
+way you're going. The End has no paired coordinate space, so it just says so
+rather than inventing numbers.
+
+## Chunks
+
+Tap `▦` and then tap any chunk to tag it. You can mark:
+
+- **Majority biome** — every biome in the game is in the list, including the
+  legacy ones Bedrock still carries but no longer generates. It's a multi-select,
+  because a chunk can straddle a boundary; the first one you pick is the colour
+  it takes on the map. The list is searchable, which is the only reason ninety-odd
+  entries is workable on a phone.
+- **Slime chunk** — drawn as a green hatch over the biome colour, so the two
+  facts stay independently readable. If you're hunting a slime farm site this is
+  the whole point.
+
+## Secret pins
+
+Long-press the server name in the top left and enter your **owner key** (a
+second key, separate from the one your friends have). Secret pins then appear
+with a dashed halo, and the pin form grows a "secret" checkbox.
+
+This is not a UI trick. Secret pins are filtered out by the database's read
+policy itself, so they are never sent to anyone who isn't holding the owner key
+— not hidden on arrival, never transmitted. Even the shared server key cannot
+create one, read one, or delete one.
+
+Tap the 🔓 badge to lock again.
+
 ## Setup
 
 ### 1. Database
 
 Run [`supabase/schema.sql`](supabase/schema.sql) in your Supabase project's SQL
-editor. It creates the tables, locks them down, and sets your write key.
+editor. It creates the tables, locks them down, and sets both keys.
 
-**Change the key** — the default in the schema is a placeholder:
+**Change both keys** — the defaults in the schema are placeholders:
 
 ```sql
-update atlas_config
-set write_hash = extensions.crypt('your-key-here', extensions.gen_salt('bf', 10))
+update atlas_config set
+  write_hash = extensions.crypt('the-shared-key', extensions.gen_salt('bf', 10)),
+  owner_hash = extensions.crypt('your-private-key', extensions.gen_salt('bf', 10))
 where id = 1;
 ```
 
-Then turn on Realtime for `pins` and `borders` so everyone's map updates live:
+`write_hash` is the key you hand out. `owner_hash` is yours alone — it grants
+everything the shared key does, plus secret pins.
 
-```sql
-alter publication supabase_realtime add table public.pins;
-alter publication supabase_realtime add table public.borders;
-```
+Realtime is switched on at the bottom of the schema, so everyone's map updates
+without a refresh.
 
 ### 2. Config
 
@@ -73,17 +117,32 @@ anything else) at the repo and it works.
 
 The Supabase anon key is committed, and that's fine. It's designed to be public.
 
-Security lives in two places instead:
+Security lives in three places instead:
 
-- **Row Level Security** on `pins` and `borders` allows `SELECT` and nothing
-  else. The anon key cannot insert, update, or delete a single row.
-- **Every write goes through a Postgres function** that checks your server
-  passphrase before it touches a table. The passphrase is stored as a bcrypt
-  hash in `atlas_config`, a table with *zero* RLS policies — meaning nobody
-  holding the anon key can read it, ever.
+- **Row Level Security** allows `SELECT` and nothing else. The anon key cannot
+  insert, update, or delete a single row.
+- **Every write goes through a Postgres function** that checks your passphrase
+  before it touches a table. Passphrases are stored as bcrypt hashes in
+  `atlas_config`, a table with *zero* RLS policies — meaning nobody holding the
+  anon key can read them, ever.
+- **Secret pins are excluded by the read policy**, so they aren't merely hidden
+  by the interface. They are never sent.
 
-So the worst someone can do with everything in this repo is read your map, which
-is the point.
+So the worst someone can do with everything in this repo is read your public
+map, which is the point.
+
+Verified from outside with nothing but what's committed here:
+
+| attempt | result |
+| --- | --- |
+| insert a pin with the anon key | `42501` row-level security violation |
+| read `atlas_config` | `[]` — no hash returned |
+| call `atlas_check` directly | `permission denied for function` |
+| save with a wrong passphrase | `bad key` |
+| list pins as a stranger | secret pins absent |
+| query `secret=eq.true` as a stranger | `[]` |
+| fetch secret pins with the *shared* key | `bad key` |
+| create a secret pin with the *shared* key | `owner only` |
 
 ## Customising
 

@@ -176,8 +176,15 @@ Put your project URL and anon key in `config.js`, and set `SERVER_NAME`.
 
 ### 3. Deploy
 
-It's static files — no build step, no dependencies to install. Point Netlify (or
-anything else) at the repo and it works.
+It's static files — no build step, no dependencies to install, no bundler.
+
+This copy runs on **GitHub Pages** at
+<https://xanboo78o.github.io/mc-atlas/> — Settings &rarr; Pages, source `main` / `/`.
+Every push to `main` rebuilds it a minute later, so deploying is just `git push`.
+The `.nojekyll` file stops Pages trying to process the site and makes it serve
+the files verbatim.
+
+Anything that serves a folder works just as well.
 
 ## About that key in the repo
 

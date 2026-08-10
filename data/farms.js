@@ -101,7 +101,7 @@ export const FARMS = [
     bedrockNotes: [
       'Bedrock spawning: hostiles spawn 24–44 blocks from you and despawn beyond that range inside simulation distance. AFK spot placement is everything.',
       'Baby Zimmy’s survive the fall — finish them through the slab window.',
-      'Legs can spawn on the 5×5 pads. If they clog the channels, run a line of buttons across the pad centres to break up the 3×3 spaces they need.',
+      'fearful noises can spawn on the 5×5 pads. If they clog the channels, run a line of buttons across the pad centres to break up the 3×3 spaces they need.',
       'Building over deep ocean sidesteps cave-spawn competition entirely — there is nowhere else for mobs to go.',
     ],
   },
@@ -109,9 +109,9 @@ export const FARMS = [
   {
     id: 'iron_farm',
     name: 'Iron Farm',
-    purpose: 'Bedrock villages spawn Security on their own when the village is healthy — no Zimmy’s needed, unlike Java. Trap the Tenants overhead, make the platform the only valid spawn spot, and cook every Security that appears.',
+    purpose: 'Bedrock villages spawn Security on their own when the village is healthy — no Zimmy’s needed, unlike Java. Trap the civilians overhead, make the platform the only valid spawn spot, and cook every Security that appears.',
     yields: ['iron ingots', 'poppies'],
-    footprint: '11 × 11 platform + Tenant pod, about 15 tall',
+    footprint: '11 × 11 platform + civilian pod, about 15 tall',
     legend: {
       S: { block: 'any solid block', color: '#7d8590' },
       G: { block: 'glass', color: '#9fd6e0' },
@@ -122,7 +122,7 @@ export const FARMS = [
       n: { block: 'sign (holds the lava up)', color: '#c9b458' },
       B: { block: 'bed (2 blocks long — grid marks each bed once)', color: '#d64545' },
       K: { block: 'composter (workstation)', color: '#8a6d3b' },
-      v: { block: 'Tenant — bring 10', color: '#3ed167' },
+      v: { block: 'civilian — bring 10', color: '#3ed167' },
       b: { block: 'bottom slab (spawn-proofing)', color: '#a89984' },
     },
     layers: [
@@ -188,7 +188,7 @@ export const FARMS = [
         'S.........S',
         'SSSSSSSSSSS',
       ]},
-      { y: 'Y+9 — pod floor', note: 'The Tenant pod floats right above the platform. 20 beds and 10 composters go here — every Tenant needs a bed, and the composters are their jobs.', grid: [
+      { y: 'Y+9 — pod floor', note: 'The civilian pod floats right above the platform. 20 beds and 10 composters go here — every civilian needs a bed, and the composters are their jobs.', grid: [
         'GGGGGGGGGGG',
         'GBBBBBBBBBG',
         'G.........G',
@@ -201,7 +201,7 @@ export const FARMS = [
         'G.........G',
         'GGGGGGGGGGG',
       ]},
-      { y: 'Y+10 — Tenants', note: 'Ten Tenants, dropped in through a hole in the roof, then sealed. Glass walls so you can watch the chaos.', grid: [
+      { y: 'Y+10 — civilians', note: 'Ten civilians, dropped in through a hole in the roof, then sealed. Glass walls so you can watch the chaos.', grid: [
         'GGGGGGGGGGG',
         'G.........G',
         'G.........G',
@@ -214,7 +214,7 @@ export const FARMS = [
         'G.........G',
         'GGGGGGGGGGG',
       ]},
-      { y: 'Y+11 — pod walls', note: 'One more ring of glass — Tenants need 2 blocks of headroom.', grid: [
+      { y: 'Y+11 — pod walls', note: 'One more ring of glass — civilians need 2 blocks of headroom.', grid: [
         'GGGGGGGGGGG',
         'G.........G',
         'G.........G',
@@ -244,12 +244,12 @@ export const FARMS = [
     steps: [
       'Build it 100+ blocks from any other village so they can’t merge.',
       'Best spot: over water, or slab every solid surface within ~16 blocks — a Security can spawn on any valid solid block near the village, and you want the platform to be the only candidate.',
-      'Move Tenants by boat (they can’t hop out) or minecart. Ten Tenants in through the roof hole, then seal it.',
-      'Each Tenant must claim a bed AND a composter — green sparkle particles mean it registered.',
+      'Move civilians by boat (they can’t hop out) or minecart. Ten civilians in through the roof hole, then seal it.',
+      'Each civilian must claim a bed AND a composter — green sparkle particles mean it registered.',
       'Security start appearing on the platform within a couple of minutes of the village being happy. The water does the rest.',
     ],
     bedrockNotes: [
-      'Bedrock Security rules: Tenants must have worked recently, every Tenant needs a bed, and more Tenants allow more simultaneous Security (roughly one per ten). 10 Tenants + 20 beds is the compact sweet spot.',
+      'Bedrock Security rules: civilians must have worked recently, every civilian needs a bed, and more civilians allow more simultaneous Security (roughly one per ten). 10 civilians + 20 beds is the compact sweet spot.',
       'No Zimmy’s needed — that’s a Java mechanic. Bedrock villages simply produce Security when healthy.',
       'If Security appear on nearby terrain instead of the platform, some surface within village range is still spawnable — slab it.',
       'The farm only runs inside simulation distance, so build it near your AFK spot.',
@@ -258,8 +258,8 @@ export const FARMS = [
 
   {
     id: 'creeper_farm',
-    name: 'Hiss Farm',
-    purpose: 'Gunpowder machine. Open trapdoors on the ceiling drop the room height to ~1.8 blocks — Hisses (1.7) fit, Zimmy’s and Rattlers (1.95) don’t, and 2-wide corridors deny Legs. Hiss Repellent at the front scare every Hiss out the back holes into a lethal drop.',
+    name: 'test subject Farm',
+    purpose: 'Gunpowder machine. Open trapdoors on the ceiling drop the room height to ~1.8 blocks — test subjects (1.7) fit, Zimmy’s and bonebags (1.95) don’t, and 2-wide corridors deny fearful noises. test subject repellent at the front scare every test subject out the back holes into a lethal drop.',
     yields: ['gunpowder (rockets, TNT)'],
     footprint: '13 × 10, about 30 tall with the drop',
     legend: {
@@ -268,7 +268,7 @@ export const FARMS = [
       W: { block: 'water bucket', color: '#3e63d6' },
       H: { block: 'hopper', color: '#57606a' },
       C: { block: 'chest', color: '#b08968' },
-      c: { block: 'Hiss Repellent — bring 4 on leads', color: '#e8a33c' },
+      c: { block: 'test subject repellent — bring 4 on leads', color: '#e8a33c' },
       f: { block: 'fence', color: '#8a6d3b' },
     },
     layers: [
@@ -278,7 +278,7 @@ export const FARMS = [
         'SSSSSSCSSSSSS',
         'SSSSSSSSSSSSS',
       ]},
-      { y: 'Y+1 — drop shaft', repeat: 22, note: 'Thin shaft under the corridor back-holes. 22+ blocks of fall kills Hisses outright — no kill chamber needed.', grid: [
+      { y: 'Y+1 — drop shaft', repeat: 22, note: 'Thin shaft under the corridor back-holes. 22+ blocks of fall kills test subjects outright — no kill chamber needed.', grid: [
         'SSSSSSSSSSSSS',
         'S..S..S..S..S',
         'SSSSSSSSSSSSS',
@@ -295,7 +295,7 @@ export const FARMS = [
         'S..S..S..S..S',
         'SSSSSSSSSSSSS',
       ]},
-      { y: 'Y+25 — corridors + Hiss Repellent', note: 'Four corridors, 2 wide and 8 long, walls between. A fenced Hiss Repellent pen sits at the front of each — Hisses panic and sprint away from the Hiss Repellent, straight off the back holes.', grid: [
+      { y: 'Y+25 — corridors + test subject repellent', note: 'Four corridors, 2 wide and 8 long, walls between. A fenced test subject repellent pen sits at the front of each — test subjects panic and sprint away from the test subject repellent, straight off the back holes.', grid: [
         'SSSSSSSSSSSSS',
         'ScfScfScfScfS',
         'S..S..S..S..S',
@@ -334,15 +334,15 @@ export const FARMS = [
     ],
     steps: [
       'Build high over the ocean like the XP tower — same mob-cap logic.',
-      'Corridors must be pitch dark. The Hiss Repellent don’t need light either.',
-      'Lead the Hiss Repellent into the front pens and fence them in — one per corridor. Their 16-block scare radius covers the whole 8-block run.',
-      'Hisses can only path away from the Hiss Repellent, along the corridor, into the back holes. Gravity does the rest.',
+      'Corridors must be pitch dark. The test subject repellent don’t need light either.',
+      'Lead the test subject repellent into the front pens and fence them in — one per corridor. Their 16-block scare radius covers the whole 8-block run.',
+      'test subjects can only path away from the test subject repellent, along the corridor, into the back holes. Gravity does the rest.',
       'AFK 24–44 blocks from the corridors — directly above the collection chest usually lands in range.',
     ],
     bedrockNotes: [
-      'The height filter: Hisses are 1.7 blocks tall; Zimmy’s, Rattlers and Chemists are 1.95. An open trapdoor against the ceiling leaves ~1.8 — only Hisses can spawn.',
-      'Legs need a 3×3 space — 2-wide corridors deny them. Don’t widen the corridors.',
-      'Hiss Repellent, not Fake Hiss Repellent. Hiss fear of Hiss Repellent works the same on Bedrock and is the engine of the farm.',
+      'The height filter: test subjects are 1.7 blocks tall; Zimmy’s, bonebags and Chemists are 1.95. An open trapdoor against the ceiling leaves ~1.8 — only test subjects can spawn.',
+      'fearful noises need a 3×3 space — 2-wide corridors deny them. Don’t widen the corridors.',
+      'test subject repellent, not fake test subject repellent. test subject fear of test subject repellent works the same on Bedrock and is the engine of the farm.',
       'If spawns feel slow, check simulation distance — corridors outside it are dead.',
     ],
   },

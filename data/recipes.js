@@ -47,7 +47,7 @@ export const RECIPES = [
     note: 'Charcoal works identically — smelt logs and never mine coal again.' },
   { id: 'soul_torch', name: 'Soul Torch', cat: 'Tools', out: 'soul torch', count: 4,
     grid: [['coal'],['stick'],['soul soil']],
-    note: 'Blue flame. Gold Guys hate it, and soul fire scares Nether Oinks.' },
+    note: 'Blue flame. Gold Guys hate it, and soul fire scares nether oinks.' },
   { id: 'lantern', name: 'Lantern', cat: 'Tools', out: 'lantern', count: 1,
     grid: [['nugget','nugget','nugget'],['nugget','torch','nugget'],['nugget','nugget','nugget']],
     note: 'Iron nuggets. Soul torch in the middle makes a soul lantern; a copper torch in 8 COPPER nuggets makes a copper lantern.' },
@@ -179,7 +179,7 @@ export const RECIPES = [
     note: 'Same-wood planks. Add a chest for a chest boat. Bamboo makes a raft instead.' },
   { id: 'carrot_stick', name: 'Carrot on a Stick', cat: 'Transport', out: 'carrot on a stick', count: 1,
     grid: [['fishing rod',null],[null,'carrot']],
-    note: 'Steer a saddled Oinks. The warped-fungus version steers Lava Taxis across lava.' },
+    note: 'Steer a saddled oinks. The warped-fungus version steers Lava Taxis across lava.' },
 
   // ───────────── food ─────────────
   { id: 'bread', name: 'Bread', cat: 'Food', out: 'bread', count: 1,
@@ -260,7 +260,7 @@ export const RECIPES = [
     note: 'On Bedrock it holds potions — that’s the tipped-arrow machine.' },
   { id: 'composter', name: 'Composter', cat: 'Utility', out: 'composter', count: 1,
     grid: [['slab',null,'slab'],['slab',null,'slab'],['slab','slab','slab']],
-    note: 'Wood slabs. Turns plant scraps into bone meal, and makes farmer Tenants.' },
+    note: 'Wood slabs. Turns plant scraps into bone meal, and makes farmer civilians.' },
   { id: 'bookshelf', name: 'Bookshelf', cat: 'Utility', out: 'bookshelf', count: 1,
     grid: [['planks','planks','planks'],['book','book','book'],['planks','planks','planks']],
     note: '15 shelves around an enchanting table unlock level-30 enchants.' },
@@ -322,7 +322,7 @@ export const RECIPES = [
     grid: [['glass',null,'glass'],[null,'glass',null]] },
   { id: 'firework_star', name: 'Firework Star', cat: 'Utility', out: 'firework star', count: 1, shapeless: true,
     grid: [['gunpowder','dye']],
-    note: 'Add a gold nugget for star-shape, a head for Hiss-shape, glowstone for twinkle.' },
+    note: 'Add a gold nugget for star-shape, a head for test subject-shape, glowstone for twinkle.' },
 
   // ───────────── building ─────────────
   { id: 'planks', name: 'Planks', cat: 'Building', out: 'planks', count: 4, shapeless: true,
@@ -461,5 +461,5 @@ export const BREWING = {
     { add: 'dragon’s breath', does: 'lingering (area cloud)' },
     { add: 'fermented spider eye', does: 'corrupts: Night Vision→Invisibility, Healing→Harming, Swiftness→Slowness, Poison→Harming' },
   ],
-  note: 'Fermented spider eye on a plain water bottle brews Weakness — that plus a golden apple cures Tenants in arrears for the discount-trading trick.',
+  note: 'Fermented spider eye on a plain water bottle brews Weakness — that plus a golden apple cures ex gfs for the discount-trading trick.',
 }

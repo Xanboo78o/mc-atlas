@@ -26,10 +26,12 @@ const stem = w => w.replace(/(?:es|s)$/, '')
 
 const TRANSLATE = new Map()
 for (const m of [...MOB_NAMES, ...BLOCK_NAMES]) {
-  // drop the article: "the Tenants" is written as "Tenants" in prose
-  const mine = norm(m.name).replace(/^(?:the|a) /, '')
+  // drop the article: "the civilians" is written as "civilians" in prose
+  const mine = norm(m.name).replace(/^(?:the|a|an) /, '')
   TRANSLATE.set(norm(m.real), mine)
   if (!m.real.endsWith('s')) TRANSLATE.set(norm(m.real) + 's', mine)
+  // a mob can answer to several names — each one resolves to the same thing
+  for (const a of m.alt || []) TRANSLATE.set(norm(a), mine)
 }
 
 // real block name -> ours, for the variant chips in the Blocks tab
@@ -238,12 +240,14 @@ function renderNames (q) {
   }
   for (const g of NAME_GROUPS) {
     const hits = MOB_NAMES.filter(m => m.group === g &&
-      matches([m.name, m.real, m.note].filter(Boolean).join(' '), q))
+      matches([m.name, m.real, m.note, ...(m.alt || [])].filter(Boolean).join(' '), q))
     if (!hits.length) continue
     html += `<h3 class="info-h">${g}</h3><div class="card"><table class="info-table">
       <tr><th>what we call it</th><th>what the game calls it</th></tr>
       ${hits.map(m => `<tr>
-        <td><strong>${esc(m.name)}</strong>${m.note ? `<div class="card-note">${esc(m.note)}</div>` : ''}</td>
+        <td><strong>${esc(m.name)}</strong>${
+          (m.alt || []).length ? `<div class="chips">${m.alt.map(a => `<span class="chip">${esc(a)}</span>`).join('')}</div>` : ''
+        }${m.note ? `<div class="card-note">${esc(m.note)}</div>` : ''}</td>
         <td class="odds">${esc(m.real)}</td>
       </tr>`).join('')}
     </table></div>`

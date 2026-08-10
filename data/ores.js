@@ -65,7 +65,7 @@ export const ORES = [
     tool: 'stone pickaxe or better',
     fortune: 'Fortune III averages ~11 lapis per ore.',
     where: 'Y −64 to 64, peaking at Y 0.',
-    strat: 'Y 0 is an awkward layer nobody mines on purpose — so lapis mostly arrives as a side effect of caving. If you are short for enchanting, one dedicated hour at Y 0 with Fortune sets you up for life. Cleric Tenants also sell it for one emerald.',
+    strat: 'Y 0 is an awkward layer nobody mines on purpose — so lapis mostly arrives as a side effect of caving. If you are short for enchanting, one dedicated hour at Y 0 with Fortune sets you up for life. Cleric civilians also sell it for one emerald.',
   },
   {
     id: 'diamond', name: 'Diamond', color: '#4fd8d5',
@@ -83,7 +83,7 @@ export const ORES = [
     tool: 'iron pickaxe or better',
     fortune: 'Fortune III averages ~2.2 per ore.',
     where: 'ONLY mountain biomes (meadow, grove, peaks, windswept hills). Single-block ores, peaking way up at Y 232.',
-    strat: 'The ore is a novelty — real emeralds come from trading. One farmer Tenant with a composter buys wheat and carrots endlessly. Ore-wise: high peaks in mountain biomes, surface-visible, same trip as your mountain iron run.',
+    strat: 'The ore is a novelty — real emeralds come from trading. One farmer civilian with a composter buys wheat and carrots endlessly. Ore-wise: high peaks in mountain biomes, surface-visible, same trip as your mountain iron run.',
   },
   {
     id: 'quartz', name: 'Nether Quartz', color: '#e6dfd3',

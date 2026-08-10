@@ -42,6 +42,7 @@
 
 <div id="fabs">
   <button class="fab fab-ghost" id="homeBtn" title="Back to spawn" aria-label="Back to spawn">◎</button>
+  <button class="fab fab-ghost" id="timeBtn" title="Replay the server's history" aria-label="Replay history">⏱</button>
   <button class="fab fab-ghost" id="measureBtn" title="Measure across dimensions" aria-label="Measure">⇿</button>
   <button class="fab fab-ghost" id="chunkBtn" title="Tag chunks" aria-label="Tag chunks">▦</button>
   <button class="fab fab-ghost" id="borderBtn" title="Draw a border" aria-label="Draw a border">⬡</button>
@@ -77,6 +78,20 @@
 <div id="chunkBar" class="drawbar hidden">
   <span id="chunkInfo">Tap a chunk to tag it.</span>
   <button class="btn btn-ghost" id="chunkDone">Close</button>
+</div>
+
+<!-- history replay -->
+<div id="timeBar" class="drawbar timebar hidden">
+  <div class="time-head">
+    <button class="btn btn-play" id="timePlay" aria-label="Play">▶</button>
+    <div class="time-read">
+      <strong id="timeDay">Day 1</strong>
+      <span id="timeDate">—</span>
+    </div>
+    <div class="time-count" id="timeCount">0</div>
+    <button class="btn btn-ghost" id="timeDone">Close</button>
+  </div>
+  <input id="timeSlider" type="range" min="0" max="1000" value="1000" step="1" aria-label="Scrub through history">
 </div>
 
 <!-- ───────────────── sheets ───────────────── -->

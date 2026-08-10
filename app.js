@@ -21,7 +21,9 @@ const store = {
   editingChunk: null,
   draft: null,                // border being drawn: array of [x, z]
   measure: [],                // measuring line: up to two [x, z] points
-  mode: 'normal',             // normal | border | measure | chunk
+  mode: 'normal',             // normal | border | measure | chunk | time
+  // history replay: when `at` is set, only things created before it are drawn
+  time: { at: null, min: 0, max: 0, playing: false },
   owner: false,               // owner mode unlocked → secret pins visible
 }
 
@@ -168,7 +170,7 @@ function drawChunks () {
   if (size < 2) return                       // too small to mean anything
 
   for (const c of store.chunks) {
-    if (c.dimension !== store.dimension) continue
+    if (c.dimension !== store.dimension || !bornYet(c)) continue
     const { sx, sy } = toScreen(c.cx * CHUNK, c.cz * CHUNK)
     if (sx < -size || sy < -size || sx > cv.clientWidth || sy > cv.clientHeight) continue
 
@@ -256,7 +258,7 @@ function polyPath (points) {
 
 function drawBorders () {
   for (const b of store.borders) {
-    if (b.dimension !== store.dimension) continue
+    if (b.dimension !== store.dimension || !bornYet(b)) continue
     const pts = b.points
     if (!Array.isArray(pts) || pts.length < 3) continue
 
@@ -294,8 +296,12 @@ function drawDraft () {
   }
 }
 
+// During a replay, anything created after the playhead simply does not exist yet.
+const bornYet = e => store.time.at === null || Date.parse(e.created_at) <= store.time.at
+
 function visiblePins () {
-  return store.pins.filter(p => p.dimension === store.dimension && !store.hidden.has(p.kind))
+  return store.pins.filter(p =>
+    p.dimension === store.dimension && !store.hidden.has(p.kind) && bornYet(p))
 }
 
 function drawPins () {
@@ -351,7 +357,7 @@ function pinAt (sx, sy) {
 function borderAt (sx, sy) {
   const { x, z } = toWorld(sx, sy)
   for (const b of store.borders) {
-    if (b.dimension !== store.dimension) continue
+    if (b.dimension !== store.dimension || !bornYet(b)) continue
     if (Array.isArray(b.points) && b.points.length >= 3 && inPolygon(x, z, b.points)) return b
   }
   return null
@@ -738,10 +744,12 @@ function setMode (mode) {
   if (mode === 'border') store.editingBorder = null
 
   $('borderBtn').classList.toggle('on', mode === 'border')
+  $('timeBtn').classList.toggle('on', mode === 'time')
   $('measureBtn').classList.toggle('on', mode === 'measure')
   $('chunkBtn').classList.toggle('on', mode === 'chunk')
 
   $('drawBar').classList.toggle('hidden', mode !== 'border')
+  $('timeBar').classList.toggle('hidden', mode !== 'time')
   $('measureBar').classList.toggle('hidden', mode !== 'measure')
   $('chunkBar').classList.toggle('hidden', mode !== 'chunk')
 
@@ -754,6 +762,7 @@ function setMode (mode) {
     $('drawDone').disabled = true
   }
   if (mode === 'measure') showMeasure()
+  if (mode === 'time') startTimeline(); else stopTimeline()
   render()
 }
 
@@ -761,6 +770,7 @@ const stopDrawing = () => setMode('normal')
 const toggleMode = m => setMode(store.mode === m ? 'normal' : m)
 
 $('borderBtn').onclick = () => { closeSheets(); toggleMode('border') }
+$('timeBtn').onclick = () => { closeSheets(); toggleMode('time') }
 $('measureBtn').onclick = () => { closeSheets(); toggleMode('measure') }
 $('chunkBtn').onclick = () => { closeSheets(); toggleMode('chunk') }
 $('measureDone').onclick = stopDrawing
@@ -845,6 +855,88 @@ $('bDelete').onclick = async () => {
   closeSheets()
   toast('Border deleted')
 }
+
+/* ══════════════════════ history replay ══════════════════════
+
+   Everything on the atlas is stamped with when it was added, so the map can
+   simply be replayed: drag the playhead and the server rebuilds itself in the
+   order it was actually built. Day 1 is whatever went in first.              */
+
+const DAY = 86400000
+let timeRAF = null
+
+function startTimeline () {
+  const all = [...store.pins, ...store.borders, ...store.chunks]
+  if (!all.length) {
+    $('timeDay').textContent = 'Nothing pinned yet'
+    $('timeDate').textContent = 'Add something and the replay fills in'
+    $('timeCount').textContent = '0'
+    store.time.at = null
+    return
+  }
+  const stamps = all.map(e => Date.parse(e.created_at)).filter(n => !isNaN(n))
+  store.time.min = Math.min(...stamps)
+  // always run to "now" so the last thing added isn't sitting on the end stop
+  store.time.max = Math.max(Math.max(...stamps), Date.now())
+  store.time.at = store.time.max
+  $('timeSlider').value = 1000
+  drawTimeline()
+}
+
+function stopTimeline () {
+  pauseTimeline()
+  if (store.time.at !== null) { store.time.at = null; render() }
+}
+
+function timeAtFraction (f) {
+  const { min, max } = store.time
+  store.time.at = min + (max - min) * f
+  drawTimeline()
+}
+
+function drawTimeline () {
+  const { at, min } = store.time
+  if (at === null) return render()
+  const day = Math.floor((at - min) / DAY) + 1
+  const shown = [...store.pins, ...store.borders, ...store.chunks].filter(bornYet).length
+  $('timeDay').textContent = `Day ${day}`
+  $('timeDate').textContent = new Date(at).toLocaleString(undefined,
+    { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+  $('timeCount').textContent = shown
+  render()
+}
+
+function playTimeline () {
+  store.time.playing = true
+  $('timePlay').textContent = '❚❚'
+  const started = performance.now()
+  const from = (store.time.at - store.time.min) / (store.time.max - store.time.min)
+  // if the playhead is already at the end, a replay starts over from the top
+  const begin = from >= 0.999 ? 0 : from
+  const RUN = 12000 * (1 - begin)
+
+  const step = now => {
+    const f = Math.min(1, begin + (now - started) / RUN)
+    $('timeSlider').value = Math.round(f * 1000)
+    timeAtFraction(f)
+    if (f < 1 && store.time.playing) timeRAF = requestAnimationFrame(step)
+    else pauseTimeline()
+  }
+  timeRAF = requestAnimationFrame(step)
+}
+
+function pauseTimeline () {
+  store.time.playing = false
+  $('timePlay').textContent = '▶'
+  if (timeRAF) { cancelAnimationFrame(timeRAF); timeRAF = null }
+}
+
+$('timePlay').onclick = () => store.time.playing ? pauseTimeline() : playTimeline()
+$('timeDone').onclick = stopDrawing
+$('timeSlider').addEventListener('input', e => {
+  pauseTimeline()
+  timeAtFraction(e.target.value / 1000)
+})
 
 /* ══════════════════════ the measuring line ══════════════════════
 

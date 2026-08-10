@@ -258,7 +258,7 @@ export const FARMS = [
 
   {
     id: 'creeper_farm',
-    name: 'test subject Farm',
+    name: 'Test Subject Farm',
     purpose: 'Gunpowder machine. Open trapdoors on the ceiling drop the room height to ~1.8 blocks — test subjects (1.7) fit, Zimmy’s and bonebags (1.95) don’t, and 2-wide corridors deny fearful noises. test subject repellent at the front scare every test subject out the back holes into a lethal drop.',
     yields: ['gunpowder (rockets, TNT)'],
     footprint: '13 × 10, about 30 tall with the drop',
@@ -346,4 +346,414 @@ export const FARMS = [
       'If spawns feel slow, check simulation distance — corridors outside it are dead.',
     ],
   },
+
+  // ═══════════════ crops ═══════════════
+  {
+    id: 'crop_plot',
+    name: 'The 9×9 Crop Plot',
+    purpose: 'Wheat, carrots, potatoes or beetroot. One water source hydrates four blocks in every direction, which is exactly a 9×9 — this is the biggest farm one bucket can support, and every farm you ever build is a copy of it.',
+    yields: ['wheat', 'carrots', 'potatoes', 'beetroot', 'bread'],
+    footprint: '9 × 9, one block deep',
+    legend: {
+      F: { block: 'farmland (hoe the dirt)', color: '#6b4d2f' },
+      W: { block: 'water source', color: '#3e63d6' },
+      C: { block: 'seeds / crop', color: '#7fb83f' },
+      T: { block: 'torch', color: '#fbbf24' },
+    },
+    layers: [
+      { y: 'Y+0 — the plot', note: 'Hoe every block, then drop one water bucket in the middle. Anything within 4 blocks of that water stays hydrated, so the corners are the furthest you can go.', grid: [
+        'FFFFFFFFF','FFFFFFFFF','FFFFFFFFF','FFFFFFFFF',
+        'FFFFWFFFF',
+        'FFFFFFFFF','FFFFFFFFF','FFFFFFFFF','FFFFFFFFF',
+      ]},
+      { y: 'Y+1 — planted', note: 'Plant everything except the water square. Crops need light level 9 to grow, so put torches at the corners if this is indoors or you want it growing overnight.', grid: [
+        'CCCCCCCCC','CCCCCCCCC','CCCCCCCCC','CCCCCCCCC',
+        'CCCC.CCCC',
+        'CCCCCCCCC','CCCCCCCCC','CCCCCCCCC','CCCCCCCCC',
+      ]},
+      { y: 'Y+2 — light', note: 'Torches on posts at the corners. Skip this if it is open to the sky.', grid: [
+        'T.......T','.........','.........','.........',
+        '.........',
+        '.........','.........','.........','T.......T',
+      ]},
+    ],
+    steps: [
+      'Dig or wall the plot so nothing wanders in — a single Zimmy’s walking across trampled farmland undoes an hour.',
+      'Hoe all 80 blocks, then place the water last so you can see the hydration darken the soil.',
+      'Fence it or roof it. Jumping on farmland also destroys it, so do not sprint across your own farm.',
+      'Bone meal makes crops jump growth stages instantly — a composter next to the farm turns the seeds you do not need back into bone meal.',
+    ],
+    bedrockNotes: [
+      'Light 9 or more, or nothing grows. Daylight counts; a torch every 5 blocks covers an indoor plot.',
+      'Crops grow faster in rows that alternate — wheat, then carrots, then wheat — because Minecraft slows growth when identical crops are adjacent on all sides.',
+      'Water freezes in snowy biomes unless you put a block over it. Roof the water square if you farm somewhere cold.',
+    ],
+  },
+
+  {
+    id: 'sugar_cane',
+    name: 'Sugar Cane Row',
+    purpose: 'The richest crop in the game — paper into books into enchanting into emeralds. Also restricted property, so this farm is the estate’s, not yours.',
+    yields: ['sugar cane', 'paper', 'books', 'sugar'],
+    footprint: '7 × 4, grows 3 tall',
+    legend: {
+      W: { block: 'water source', color: '#3e63d6' },
+      G: { block: 'dirt, sand or grass', color: '#6b4d2f' },
+      c: { block: 'sugar cane', color: '#8fd14f' },
+    },
+    layers: [
+      { y: 'Y+0 — ground', note: 'Water columns with planting columns between them. Every planting block touches water, which is the only thing cane cares about.', grid: [
+        'WGGWGGW','WGGWGGW','WGGWGGW','WGGWGGW',
+      ]},
+      { y: 'Y+1 — planted', note: 'One cane per soil block. It grows to three and stops.', grid: [
+        '.cc.cc.','.cc.cc.','.cc.cc.','.cc.cc.',
+      ]},
+    ],
+    steps: [
+      'Water must touch the soil block directly, on one of its four sides. Diagonal does not count — that is the mistake everyone makes.',
+      'Break the middle block of a grown stalk. The top pops off as an item and the bottom keeps growing, so you never replant.',
+      'Widen it by repeating the water-soil-soil-water pattern sideways forever.',
+    ],
+    bedrockNotes: [
+      'Cane grows on dirt, grass, sand, red sand, podzol or moss — sand is easiest to spot from a distance.',
+      'It grows on random ticks, so it keeps growing while you are away as long as the chunk is loaded.',
+      'This is the farm to automate first. See the piston version below.',
+    ],
+  },
+
+  {
+    id: 'cactus_farm',
+    name: 'Cactus Farm',
+    purpose: 'Fully automatic with zero redstone. Cactus breaks itself the moment it grows next to a block, drops into water, and rides to a chest. Build it once and never touch it.',
+    yields: ['cactus', 'green dye', 'a working trash can'],
+    footprint: '8 × 1, about 4 tall',
+    legend: {
+      S: { block: 'any solid block', color: '#7d8590' },
+      W: { block: 'water source', color: '#3e63d6' },
+      D: { block: 'sand', color: '#e0d29a' },
+      k: { block: 'cactus', color: '#4f8f3f' },
+      B: { block: 'any block — the breaker', color: '#9aa5ad' },
+      H: { block: 'hopper into a chest', color: '#57606a' },
+    },
+    layers: [
+      { y: 'Y+0 — floor', note: 'Solid floor so the water sits still.', grid: ['SSSSSSSS']},
+      { y: 'Y+1 — water and posts', note: 'Water in the gaps, sand posts between. Water flows toward the hopper at the end and carries every cactus with it.', grid: ['WDWDWDWH']},
+      { y: 'Y+2 — cactus', note: 'One cactus per sand post. Nothing beside them at this height, or they break immediately.', grid: ['.k.k.k..']},
+      { y: 'Y+3 — the breakers', note: 'A block beside each cactus, one level above it. The moment the cactus grows into this level it touches the block and destroys itself.', grid: ['B.B.B.B.']},
+    ],
+    steps: [
+      'Build the floor and water first and check the current actually reaches the hopper before planting anything.',
+      'The breaker blocks float in mid-air. That is fine and intended.',
+      'Extend by repeating the pattern sideways. One water source hydrates nothing here — cactus needs no water, the channel is only transport.',
+    ],
+    bedrockNotes: [
+      'Cactus breaks if ANY solid block touches its own level. Water does not count as solid, which is why the channel is safe.',
+      'It hurts to touch. Sneak along the row or build the walkway a block back.',
+      'A cactus with a hopper under it is the classic item incinerator — anything that touches it is deleted. Handy on a shared server.',
+    ],
+  },
+
+  {
+    id: 'auto_cane',
+    name: 'Automatic Sugar Cane',
+    purpose: 'The manual row, plus observers and pistons that harvest it the instant it hits three tall. This is the first real redstone farm most players build.',
+    yields: ['sugar cane', 'paper'],
+    footprint: '6 wide × 3 deep, 5 tall',
+    legend: {
+      S: { block: 'any solid block', color: '#7d8590' },
+      W: { block: 'water source', color: '#3e63d6' },
+      G: { block: 'dirt or sand', color: '#6b4d2f' },
+      c: { block: 'sugar cane', color: '#8fd14f' },
+      P: { block: 'piston, facing the cane', color: '#c9b458' },
+      O: { block: 'observer, facing the cane', color: '#8f6b9e' },
+      H: { block: 'hopper into a chest', color: '#57606a' },
+      C: { block: 'chest', color: '#b08968' },
+    },
+    layers: [
+      { y: 'Y+0 — collection', note: 'Hoppers under the whole water channel, feeding a chest at the end.', grid: [
+        'HHHHHH','SSSSSS','SSSSSS',
+      ]},
+      { y: 'Y+1 — water and soil', note: 'Water over the hoppers carries every broken cane to the chest. Soil row behind it, backing wall behind that.', grid: [
+        'WWWWWW','GGGGGG','SSSSSS',
+      ]},
+      { y: 'Y+2 — cane base', note: 'Plant here. This block never gets broken, so you never replant.', grid: [
+        '......','cccccc','SSSSSS',
+      ]},
+      { y: 'Y+3 — pistons', note: 'Pistons in the back row, each facing INTO the cane in front of it. When they fire they break the cane at this height and everything above it drops.', grid: [
+        '......','cccccc','PPPPPP',
+      ]},
+      { y: 'Y+4 — observers', note: 'Observers directly on top of the pistons, also facing the cane. They watch for the third block appearing and fire the piston below.', grid: [
+        '......','cccccc','OOOOOO',
+      ]},
+    ],
+    steps: [
+      'BUILD ONE COLUMN FIRST and watch it harvest itself before you build six. Redstone is unforgiving and one wrong facing wastes an hour.',
+      'Every observer and piston faces the cane. The observer face is the one with the dot on it.',
+      'If a column does not fire, run a single redstone dust from the back of the observer down to the piston — some layouts need the extra connection.',
+      'Water must flow the entire length to the hopper or your cane piles up on the floor.',
+    ],
+    bedrockNotes: [
+      'Observers see the block DIRECTLY in front of them and nothing else. If it faces the wrong way it will never fire.',
+      'This runs only while the chunk is loaded, so build it near your base or your AFK spot.',
+      'The same design harvests bamboo — swap the soil and plant bamboo instead. Bamboo grows far faster, which makes it the better fuel farm.',
+    ],
+  },
+
+  {
+    id: 'melon_pumpkin',
+    name: 'Melon & Pumpkin',
+    purpose: 'Stems sit on farmland and grow their fruit onto any free dirt block beside them. That means you harvest the fruit and never replant the stem.',
+    yields: ['melon slices', 'pumpkins', 'jack o’lanterns', 'golden melon'],
+    footprint: '7 × 5',
+    legend: {
+      F: { block: 'farmland (hoed)', color: '#6b4d2f' },
+      W: { block: 'water source', color: '#3e63d6' },
+      s: { block: 'melon or pumpkin seeds', color: '#7fb83f' },
+      D: { block: 'plain dirt — where the fruit grows', color: '#8a6a44' },
+    },
+    layers: [
+      { y: 'Y+0 — the beds', note: 'Rows of farmland for the stems with a bare dirt row between them. Water down the middle keeps everything hydrated.', grid: [
+        'FFFFFFF','DDDDDDD','WWWWWWW','DDDDDDD','FFFFFFF',
+      ]},
+      { y: 'Y+1 — planted', note: 'Seeds on the farmland only. Leave the dirt rows completely empty — that is where fruit appears.', grid: [
+        'sssssss','.......','.......','.......','sssssss',
+      ]},
+    ],
+    steps: [
+      'Every stem needs at least one free dirt block beside it or it will never fruit.',
+      'Harvest the FRUIT, not the stem. The stem regrows a new one within a minute or two.',
+      'Pumpkins can be sheared into carved pumpkins on the spot; melons break into 3-7 slices.',
+    ],
+    bedrockNotes: [
+      'The fruit block can grow on dirt, grass, farmland or podzol — plain dirt is easiest because nothing else will sprout there.',
+      'Stems are slow. One row of seven will not feed you; build two or three rows if you want volume.',
+    ],
+  },
+
+  {
+    id: 'nether_wart',
+    name: 'Nether Wart',
+    purpose: 'The base of every potion. Nothing else in the game does what it does, and it grows nowhere but soul sand.',
+    yields: ['nether wart', 'all brewing'],
+    footprint: '7 × 5',
+    legend: {
+      N: { block: 'soul sand', color: '#5e3830' },
+      n: { block: 'nether wart', color: '#a02020' },
+      S: { block: 'any solid block', color: '#7d8590' },
+    },
+    layers: [
+      { y: 'Y+0 — soul sand', note: 'No water and no light needed. Soul sand is the entire requirement.', grid: [
+        'SSSSSSS','SNNNNNS','SNNNNNS','SNNNNNS','SSSSSSS',
+      ]},
+      { y: 'Y+1 — planted', note: 'Plant every block. Harvest at the fourth growth stage for 2-4 wart back.', grid: [
+        '.......','.nnnnn.','.nnnnn.','.nnnnn.','.......',
+      ]},
+    ],
+    steps: [
+      'Grab the first wart from a nether fortress stairwell, and take a stack of soul sand while you are there.',
+      'Build it at your base, not in the Nether — it grows anywhere, and you do not want to walk to the Nether every time you brew.',
+      'Bone meal does NOT work on nether wart. It grows on its own schedule and there is no shortcut.',
+    ],
+    bedrockNotes: [
+      'Grows in any dimension, at any light level, with no water. It is the least fussy crop in the game.',
+      'Harvest only when it is visibly the tallest stage or you get exactly one back and gain nothing.',
+    ],
+  },
+
+  // ═══════════════ animals ═══════════════
+  {
+    id: 'moo_pen',
+    name: 'Moo & Beep Pen',
+    purpose: 'Food, leather and wool without ever hunting. Two animals plus wheat becomes an infinite supply, and it is the single best early-game investment.',
+    yields: ['steak', 'leather', 'wool', 'beds', 'books'],
+    footprint: '9 × 9 pen',
+    legend: {
+      f: { block: 'fence', color: '#8a6d3b' },
+      g: { block: 'grass', color: '#5fa04e' },
+      G: { block: 'fence gate', color: '#c9b458' },
+      T: { block: 'torch', color: '#fbbf24' },
+    },
+    layers: [
+      { y: 'Y+0 — the pen', note: 'Fence ring with a gate. Grass inside so beeps regrow their wool after shearing.', grid: [
+        'ffffGffff','fgggggggf','fgggggggf','fgggggggf','fgggggggf',
+        'fgggggggf','fgggggggf','fgggggggf','fffffffff',
+      ]},
+      { y: 'Y+1 — lit', note: 'Torches on the fence posts. A lit pen means nothing spawns inside it and nothing gets eaten overnight.', grid: [
+        'T.......T','.........','.........','.........','.........',
+        '.........','.........','.........','T.......T',
+      ]},
+    ],
+    steps: [
+      'Lead two of each in with wheat in your hand — they follow it from 8 blocks away. A lead or a boat works for longer trips.',
+      'Feed two adults wheat and they breed. Wait five minutes and they can breed again.',
+      'Keep about a dozen. More than that and the chunk gets laggy for no extra benefit.',
+      'Dye a beep once and it shears that colour forever — one lime beep is a permanent lime wool supply.',
+    ],
+    bedrockNotes: [
+      'Moos and beeps eat grass and trample nothing, so a grass floor maintains itself.',
+      'Shear beeps, never kill them. Killing gives one wool; shearing gives up to three and the beep regrows it.',
+      'Torches matter more than the fence — a lit pen cannot spawn anything hostile inside.',
+    ],
+  },
+
+  {
+    id: 'chicky_farm',
+    name: 'Chicky D Farm',
+    purpose: 'Chicky D lay eggs on a timer whether you are there or not. Hoppers collect the eggs, a dispenser throws them back, and some of them hatch. It feeds itself.',
+    yields: ['eggs', 'raw chicken', 'feathers', 'cake'],
+    footprint: '5 × 5, 4 tall',
+    legend: {
+      S: { block: 'any solid block', color: '#7d8590' },
+      H: { block: 'hopper', color: '#57606a' },
+      C: { block: 'chest', color: '#b08968' },
+      G: { block: 'glass', color: '#9fd6e0' },
+      c: { block: 'Chicky D — start with 2', color: '#e8c14f' },
+      D: { block: 'dispenser, facing down', color: '#c9b458' },
+      L: { block: 'lever or button', color: '#a89984' },
+    },
+    layers: [
+      { y: 'Y+0 — collection', note: 'Chest under the hopper.', grid: [
+        'SSSSS','SSSSS','SSCSS','SSSSS','SSSSS',
+      ]},
+      { y: 'Y+1 — hopper floor', note: 'Hoppers under the whole pen so every egg drops straight into the chest.', grid: [
+        'SSSSS','SHHHS','SHHHS','SHHHS','SSSSS',
+      ]},
+      { y: 'Y+2 — the pen', note: 'Glass walls so you can watch. Two Chicky D to start.', grid: [
+        'GGGGG','G...G','G.c.G','G.c.G','GGGGG',
+      ]},
+      { y: 'Y+3 — dispenser', note: 'Dispenser in the ceiling facing DOWN, loaded from the chest. Fire it and thrown eggs sometimes hatch into more Chicky D.', grid: [
+        'SSSSS','SSSSS','SSDSS','SSSSS','SSSSS',
+      ]},
+    ],
+    steps: [
+      'Two Chicky D is enough to start — they lay every 5 to 10 minutes each.',
+      'Let the chest fill for a while, then move a stack of eggs into the dispenser and spam the lever. Roughly one in eight hatches.',
+      'Cap the population around 20 or the chunk chugs. Cook the extras.',
+      'Feed them seeds to breed directly if you would rather not wait on eggs.',
+    ],
+    bedrockNotes: [
+      'Eggs are laid on a timer per Chicky D and do not need any feeding at all — this is the only genuinely free food farm.',
+      'A hopper floor catches eggs before they can roll away or despawn.',
+      'Baby Chicky D take 20 minutes to grow. Do not panic that it looks broken.',
+    ],
+  },
+
+  {
+    id: 'bee_farm',
+    name: 'Stinger Farm',
+    purpose: 'Honey bottles and honeycomb without ever getting stung, because a campfire under the hive keeps every Stinger calm.',
+    yields: ['honey bottles', 'honeycomb', 'candles', 'waxed copper'],
+    footprint: '5 × 5',
+    legend: {
+      S: { block: 'any solid block', color: '#7d8590' },
+      F: { block: 'campfire', color: '#e8762c' },
+      s: { block: 'slab or carpet over the fire', color: '#a89984' },
+      B: { block: 'beehive or bee nest', color: '#c9942a' },
+      f: { block: 'flowers — at least 4', color: '#e05fa0' },
+      G: { block: 'glass', color: '#9fd6e0' },
+    },
+    layers: [
+      { y: 'Y+0 — flowers', note: 'Flowers within about 20 blocks of the hive. More flowers means faster honey.', grid: [
+        'fffff','fSSSf','fSSSf','fSSSf','fffff',
+      ]},
+      { y: 'Y+1 — campfire', note: 'Campfire directly under where the hive will sit. The smoke is what stops them getting angry when you harvest.', grid: [
+        '.....','.....','..F..','.....','.....',
+      ]},
+      { y: 'Y+2 — smoke guard', note: 'A carpet or slab on top of the campfire so nothing catches fire and no Stinger walks into it.', grid: [
+        '.....','.....','..s..','.....','.....',
+      ]},
+      { y: 'Y+3 — the hive', note: 'Hive directly above the smoke. Harvest with shears for comb or a bottle for honey.', grid: [
+        '.....','.....','..B..','.....','.....',
+      ]},
+    ],
+    steps: [
+      'Move a wild nest with a Silk Touch axe and the Stingers come with it. Break it without Silk Touch and you lose the nest and anger everyone.',
+      'Campfire FIRST, hive second. If you harvest a full hive with no smoke, every Stinger in it attacks you.',
+      'Wait for the hive to look full — it visibly drips honey — then shear or bottle it.',
+      'Three Stingers per hive is the cap. Breed them with flowers if you want more hives.',
+    ],
+    bedrockNotes: [
+      'Honeycomb waxes copper to freeze its colour, and honey bottles cure poison. Both are worth the small build.',
+      'Stingers need flowers within about 20 blocks or they never fill the hive.',
+      'The slab over the campfire is not optional — without it Stingers land in the fire and die.',
+    ],
+  },
+
+  // ═══════════════ resources ═══════════════
+  {
+    id: 'cobble_gen',
+    name: 'Cobblestone Generator',
+    purpose: 'Infinite building blocks from one bucket of each. Lava meeting flowing water sideways makes cobblestone forever, and it regenerates the instant you mine it.',
+    yields: ['cobblestone', 'infinite building material'],
+    footprint: '5 × 3',
+    legend: {
+      S: { block: 'any solid block', color: '#7d8590' },
+      W: { block: 'water bucket', color: '#3e63d6' },
+      L: { block: 'lava bucket', color: '#e8762c' },
+      X: { block: 'where cobble appears — mine here', color: '#9aa5ad' },
+    },
+    layers: [
+      { y: 'Y+0 — the trench', note: 'A 5-long trench one block deep. Water at one end, lava at the other, and they meet in the middle.', grid: [
+        'SSSSS','WS.SL','SSSSS',
+      ]},
+      { y: 'Y+1 — walls', note: 'Wall it in so neither liquid escapes. Stand at the open side and mine the middle block over and over.', grid: [
+        'SSSSS','S.X.S','SSSSS',
+      ]},
+    ],
+    steps: [
+      'Dig the trench, wall it, THEN place the liquids. Placing them first floods everything.',
+      'Water goes in one end, lava the other. They meet in the centre and make cobblestone there.',
+      'Mine the cobble and it regenerates immediately. An Efficiency pickaxe turns this into a stack a minute.',
+      'If you get obsidian or stone instead, your lava is touching a water SOURCE rather than flowing water. Move the water back one block.',
+    ],
+    bedrockNotes: [
+      'Flowing water plus flowing lava side by side gives cobblestone. Lava falling ONTO water gives stone instead, which is the variant worth knowing.',
+      'This is the single cheapest infinite resource in the game and it costs two buckets.',
+    ],
+  },
+
+  {
+    id: 'civilian_farm',
+    name: 'Civilian Crop Farm',
+    purpose: 'A farmer civilian harvests and replants a whole field on their own, then throws surplus food at other civilians. Automation with no redstone at all — you just employ someone.',
+    yields: ['bread', 'carrots', 'potatoes', 'beetroot', 'emeralds'],
+    footprint: '9 × 9 plot + a 3 × 3 pod',
+    legend: {
+      F: { block: 'farmland', color: '#6b4d2f' },
+      W: { block: 'water source', color: '#3e63d6' },
+      C: { block: 'planted crop', color: '#7fb83f' },
+      H: { block: 'hopper into a chest', color: '#57606a' },
+      v: { block: 'farmer civilian', color: '#3ed167' },
+      K: { block: 'composter — makes them a farmer', color: '#8a6d3b' },
+      f: { block: 'fence', color: '#8a6d3b' },
+    },
+    layers: [
+      { y: 'Y+0 — the plot', note: 'Same 9×9 as the manual farm. The civilian works this whole area on their own.', grid: [
+        'FFFFFFFFF','FFFFFFFFF','FFFFFFFFF','FFFFFFFFF',
+        'FFFFWFFFF',
+        'FFFFFFFFF','FFFFFFFFF','FFFFFFFFF','FFFFFFFFF',
+      ]},
+      { y: 'Y+1 — planted and staffed', note: 'Plant it once. Drop the civilian in with a composter so they take the farmer job. Hoppers along one edge catch what they throw.', grid: [
+        'HHHHHHHHH','CCCCCCCCC','CCCCCCCCC','CCCCCCCCC',
+        'CCCC.CCCC',
+        'CCCCCCCCC','CCCCCCCCC','CCCCCCCCC','CCCKvCCCC',
+      ]},
+      { y: 'Y+2 — fence in', note: 'Fence the perimeter so your employee does not wander off. They will not open a fence gate.', grid: [
+        'fffffffff','f.......f','f.......f','f.......f','f.......f',
+        'f.......f','f.......f','f.......f','fffffffff',
+      ]},
+    ],
+    steps: [
+      'Bring an unemployed civilian by boat and put a composter next to them. Green sparkles mean they took the job.',
+      'Plant the field once yourself. From then on they harvest and replant it forever.',
+      'They pick crops up, fill their inventory, then throw the surplus. Hoppers along one edge catch it.',
+      'Two farmers work faster than one, but they also eat. One is plenty for a 9×9.',
+    ],
+    bedrockNotes: [
+      'A farmer needs a composter as their job block. Without it they are an unemployed civilian and will do nothing.',
+      'They only work in daylight and only if they can see the crops, so do not roof it.',
+      'They throw food at other civilians, which is how you feed a breeder without lifting a finger.',
+    ],
+  },
+
 ]
